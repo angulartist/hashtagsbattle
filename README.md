@@ -7,7 +7,7 @@ Consumes thousands of inputs per seconds and does daily/hourly aggregation on ha
 Inspired by [One Million Tweet Map](https://onemilliontweetmap.com/)
 
 ### Implementation on GCP
-![gcp](https://i.imgur.com/dHkcdRE.png)
+![gcp](https://i.imgur.com/OMwD0zY.png)
 
 ### Roadmap
 * Location based stats
