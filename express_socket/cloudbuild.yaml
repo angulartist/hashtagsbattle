@@ -1,0 +1,21 @@
+steps:
+  # Decrypt env secrets
+  - name: gcr.io/cloud-builders/gcloud
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=./socket/conf/gcp_credentials.json.enc
+      - --plaintext-file=./socket/conf/gcp_credentials.json
+      - --location=global
+      - --keyring=cloudbuild-env
+      - --key=cloudbuild-env
+    id: decrypt
+  # Build the docker image
+  - name: gcr.io/cloud-builders/docker
+    args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/express-socket-dataflow', './socket/' ]
+    id: build
+  # Deploy the image
+  - name: gcr.io/cloud-builders/gcloud
+    args: ['app', 'deploy', './socket/app.yaml', '-v', '1-socket-latest']
+    id: deploy
+timeout: 1200s

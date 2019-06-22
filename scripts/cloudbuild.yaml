@@ -1,0 +1,24 @@
+steps:
+  # Decrypt env secrets
+  - name: gcr.io/cloud-builders/gcloud
+    args:
+      - kms
+      - decrypt
+      - --ciphertext-file=./tweets/conf/gcp_credentials.json.enc
+      - --plaintext-file=./tweets/conf/gcp_credentials.json
+      - --location=global
+      - --keyring=cloudbuild-env
+      - --key=cloudbuild-env
+    id: decrypt
+  - name: python:3.7
+    args: ["bash", "./tweets/tests/runner.sh"]
+    id: pytest
+  # Build the docker image
+  - name: gcr.io/cloud-builders/docker
+    args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/tweets-scrapper-dataflow', './tweets/' ]
+    id: build
+  # Deploy the image
+  - name: gcr.io/cloud-builders/gcloud
+    args: ['app', 'deploy', './tweets/app.yaml', '-v', '1-scrapper-latest']
+    id: deploy
+timeout: 1200s
