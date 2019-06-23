@@ -1,0 +1,11 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/pubsub-push', '.']
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ["push", "gcr.io/$PROJECT_ID/pubsub-push"]
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['beta', 'run', 'deploy', 'pubsub-push', '--image', 'gcr.io/$PROJECT_ID/pubsub-push', '--region', 'us-central1']
+
+timeout: 660s
