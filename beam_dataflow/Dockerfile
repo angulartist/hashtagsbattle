@@ -13,6 +13,4 @@ COPY . .
 
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
-ENV GOOGLE_APPLICATION_CREDENTIALS="./gcp_credentials.json"
-
 CMD [ "python", "./main.py", "--setup_file", "./setup.py" ]
