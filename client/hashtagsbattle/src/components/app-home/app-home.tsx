@@ -1,14 +1,18 @@
 import {Component, h, State} from '@stencil/core'
 import io from 'socket.io-client'
+import mapboxgl from 'mapbox-gl'
 
 import {SOCKET_ENDPOINT} from '../../conf'
 
+mapboxgl.accessToken = 'pk.eyJ1Ijoiam9obmRvZTY5IiwiYSI6ImNqeDhwYnp5bDBsbmUzb290dDY2Ynd6dWwifQ.I9CRLsBtq8B1I-RyqGms4A'
+
+
 @Component({
   tag: 'app-home',
-  styleUrl: 'app-home.css',
-  shadow: true
+  styleUrl: 'app-home.css'
 })
 export class AppHome {
+   mapElement: HTMLDivElement
   socket: any
 
   @State() tweetsQueue: any[] = []
@@ -16,6 +20,15 @@ export class AppHome {
   componentWillLoad() {
     this.establishSocket()
     this.monitorEvents()
+  }
+
+  componentDidLoad() {
+    new mapboxgl.Map({
+      container: this.mapElement,
+      style: 'mapbox://styles/mapbox/streets-v9'
+    })
+
+    console.log(this.mapElement)
   }
 
   establishSocket() {
@@ -43,13 +56,16 @@ export class AppHome {
   render() {
     return (
       <div class='app-home'>
-        Socket.io
+        {/*<div>*/}
+        {/*  Socket.io*/}
 
-        {this.tweetsQueue.map((tweet: any) => (
-          <div>
-            {tweet.id}
-          </div>
-        ))}
+        {/*  {this.tweetsQueue.map((tweet: any) => (*/}
+        {/*    <div>*/}
+        {/*      {tweet.id}*/}
+        {/*    </div>*/}
+        {/*  ))}*/}
+        {/*</div>*/}
+        <div ref={(el) => this.mapElement = el} id="map"></div>
       </div>
     )
   }
