@@ -10,7 +10,7 @@ A: Hashtagsbattle is a Web App which displays some analytics, such as hourly tre
 
 A: 
 
-- First of, there's a tweets listener built with [Tweepy](https://tweepy.readthedocs.io) which retrieves tweets sent back by the Twitter API. It does some basic cleaning and filtering before publishing them to a [Pub/Sub](https://cloud.google.com/pubsub/docs/overview) topic. The listener is running on an [Google App Engine](https://cloud.google.com/appengine/) instance. 
+- First of, there's a tweets listener built with [Tweepy](https://tweepy.readthedocs.io) which retrieves tweets sent back by the Twitter API. It does some basic cleaning and filtering before publishing them to a [Pub/Sub](https://cloud.google.com/pubsub/docs/overview) topic. The listener is running on a [Google App Engine](https://cloud.google.com/appengine/) instance. 
 
 - Then, there's a little [Express](https://expressjs.com/) server using [SocketIO](https://socket.io/). This application is also running on App Engine. It's quite useful because I wanted to represent the current tweets location in Real-Time on a [Mapbox](https://www.mapbox.com/) map. Storing this data (in Firebase for example) isn't useful and will be quite expensive. 
 
