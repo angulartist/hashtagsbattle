@@ -3,7 +3,7 @@ const app = require('express')()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 
-app.use(bodyParser.json())
+console.log('v4!!!')
 
 io.on('connection', socket => {
     io.emit('connected')
@@ -13,7 +13,9 @@ io.on('connection', socket => {
     })
 })
 
-app.post('/d', (req, res) => {
+app.use(bodyParser.json())
+
+app.post('/push', (req, res) => {
 
     if (!req.body) {
         const msg = 'no Pub/Sub message received'
@@ -29,10 +31,13 @@ app.post('/d', (req, res) => {
     }
 
     const pubSubMessage = req.body.message
-    const msg = Buffer.from(pubSubMessage.data, 'base64').toString()
+    const name = pubSubMessage.data
+        ? Buffer.from(pubSubMessage.data, 'base64').toString().trim()
+        : 'World'
 
-    console.log('received:', msg)
-    io.emit('tweet', msg)
+    io.emit('tweet', name)
+
+    console.log(`Hello ${name}!`)
     res.status(204).send()
 })
 

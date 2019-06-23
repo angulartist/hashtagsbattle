@@ -1,0 +1,9 @@
+runtime: custom
+env: flex
+service: express-socketio
+manual_scaling:
+  instances: 1
+network:
+  session_affinity: true
+env_variables:
+  GOOGLE_CLOUD_PROJECT: 'notbanana-7f869'
