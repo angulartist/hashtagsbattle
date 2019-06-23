@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions'
 import {db, rsvpsOutput, serverTimestamp, transaction} from './_config/main.config'
-import {dailyWindowsRef, eventWindowsRef, getTimestampIdentifier, processedTweetsRef, trendsRef} from './helpers'
+import {dailyWindowsRef, eventWindowsRef, getTimestampIdentifier, trendsRef} from './helpers'
 import {EventsSnapshot, Category, CategoryType, DailyHashtags, TrendingHashtags, Hashtag} from './models'
 
 /**
@@ -75,24 +75,6 @@ const handleTrendingHashtagsUpdate = (output: TrendingHashtags) => {
     }
 }
 
-const saveTweet = (output: any) => {
-    try {
-        const {collection} = output
-        const batch = db.batch()
-
-        collection.forEach((tweet: any) => {
-            const {event_id} = tweet
-            const tweetDoc = processedTweetsRef.doc(`tw_${event_id}`)
-            batch.set(tweetDoc, {tweet})
-        })
-
-        return batch.commit()
-    } catch
-        (e) {
-        throw new Error(e)
-    }
-}
-
 /**
  * __main__
  */
@@ -110,8 +92,6 @@ export const onPublishTweets = functions.pubsub
                 return handleDailyHashtagsUpdate(output)
             case CategoryType.get(Category.TRENDING_HASHTAGS):
                 return handleTrendingHashtagsUpdate(output)
-            case CategoryType.get(Category.TWEETS):
-                return saveTweet(output)
             default:
                 throw new Error('Unknown Category Type.')
         }

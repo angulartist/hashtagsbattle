@@ -1,4 +1,4 @@
-import {Component, h} from '@stencil/core'
+import {Component, h, State} from '@stencil/core'
 import io from 'socket.io-client'
 
 import {SOCKET_ENDPOINT} from '../../conf'
@@ -11,6 +11,8 @@ import {SOCKET_ENDPOINT} from '../../conf'
 export class AppHome {
   socket: any
 
+  @State() tweetsQueue: any[] = []
+
   componentWillLoad() {
     this.establishSocket()
     this.monitorEvents()
@@ -22,19 +24,32 @@ export class AppHome {
   }
 
   monitorEvents() {
-    this.socket.on('connected', () => {
-      console.log('Connection ACK')
-    })
+    this.socket.on('connected', () => this.logger('Connection ACK'))
 
-    this.socket.on('tweet', (element) => {
-      console.log(element)
-    })
+    this.socket.on('tweet', (element) => this.handleTweetEvent(element))
+  }
+
+  handleTweetEvent(element) {
+    if (this.tweetsQueue.length >= 20)
+      this.tweetsQueue.pop()
+
+    this.tweetsQueue = [element, ...this.tweetsQueue]
+  }
+
+  logger(smth) {
+    console.log(smth)
   }
 
   render() {
     return (
       <div class='app-home'>
         Socket.io
+
+        {this.tweetsQueue.map((tweet: any) => (
+          <div>
+            {tweet.id}
+          </div>
+        ))}
       </div>
     )
   }

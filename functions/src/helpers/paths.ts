@@ -6,6 +6,3 @@ export const dailyWindowsRef = dailyRef.collection('windows')
 export const eventsRef = tweetsRef.doc('events')
 export const eventWindowsRef = eventsRef.collection('windows')
 export const trendsRef = tweetsRef.doc('trends')
-export const processedTweetsRef = tweetsRef
-    .doc('processed')
-    .collection('tweets')

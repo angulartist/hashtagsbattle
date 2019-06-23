@@ -15,7 +15,6 @@ class Category(object):
     GLOBAL_EVENTS = 'GLOBAL_EVENTS'
     DAILY_HASHTAGS = 'DAILY_HASHTAGS'
     TRENDING_HASHTAGS = 'TRENDING_HASHTAGS'
-    TWEETS = "TWEETS"
 
 
 class PrintFn(beam.DoFn):
@@ -45,27 +44,24 @@ class FormatOutput(beam.DoFn):
     def process(self, element=beam.DoFn.ElementParam,
                 timestamp_param=beam.DoFn.TimestampParam,
                 window_param=beam.DoFn.WindowParam):
-        # Not dealings with tweets. (CA PUE DU CUL)
-        if self.category != Category.TWEETS:
-            window_start, window_end, timestamp = [
-                    format_timestamp(window_param.start),
-                    format_timestamp(window_param.end),
-                    float(timestamp_param)
-            ]
+        # Window metadata
+        window_start, window_end, timestamp = [
+                format_timestamp(window_param.start),
+                format_timestamp(window_param.end),
+                float(timestamp_param)
+        ]
 
-            obj = {
-                    'category': self.category,
-                    'output'  :
-                        {
-                                'timestamp': timestamp,
-                                'window'   : {
-                                        'start': window_start,
-                                        'end'  : window_end
-                                }
-                        }
-            }
-        else:
-            obj = {'category': self.category, 'output': {}}
+        obj = {
+                'category': self.category,
+                'output'  :
+                    {
+                            'timestamp': timestamp,
+                            'window'   : {
+                                    'start': window_start,
+                                    'end'  : window_end
+                            }
+                    }
+        }
 
         def handle_global_events():
             obj['output']['snapshot'] = element
@@ -83,16 +79,10 @@ class FormatOutput(beam.DoFn):
 
             return obj
 
-        def handle_tweets():
-            obj['output']['collection'] = element
-
-            return obj
-
         options = {
                 Category.GLOBAL_EVENTS    : handle_global_events,
                 Category.DAILY_HASHTAGS   : handle_daily_hashtags,
                 Category.TRENDING_HASHTAGS: handle_trending_hashtags,
-                Category.TWEETS           : handle_tweets
         }
 
         yield options[self.category]()

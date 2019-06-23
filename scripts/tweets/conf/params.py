@@ -1,2 +1,2 @@
 # Tweets lang to look for
-languages = ['fr']
+languages = ['fr', 'es', 'en', 'pt', 'de']

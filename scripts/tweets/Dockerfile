@@ -1,8 +1,14 @@
 FROM python:3.7
 
-WORKDIR /tweets_scrapper
+RUN pip install virtualenv
 
-COPY . /tweets_scrapper
+ENV VIRTUAL_ENV=/opt/venv
+
+RUN python3 -m virtualenv --python=/usr/bin/python3 $VIRTUAL_ENV
+
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+COPY . .
 
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 

@@ -65,15 +65,6 @@ def run(argv=None):
         # | 'Add Event Time' >> beam.ParDo(AddTimestampFn())
 
         """
-        -> Tweets.
-        TODO: Clean unused fields.
-        """
-        (inputs
-         | 'Batch Tweets' >> beam.BatchElements(min_batch_size=49, max_batch_size=50)
-         | 'Publish Tweets' >> WriteToPubSub(topic=output_topic,
-                                             category=Category.TWEETS))
-
-        """
         -> Extracts hashtags array from object.
         """
         hashtags = \
@@ -100,7 +91,6 @@ def run(argv=None):
 
         """
         -> Outputs the sum of processed events for a given fixed-time window.
-        TODO: This does not work on the Cloud Dataflow Runner : SO #56665403
         """
         (hashtags
          | 'Apply 5 Minutes' >> beam.WindowInto(
@@ -115,7 +105,6 @@ def run(argv=None):
 
         """
         -> Outputs the top 5 trending hashtags within a given fixed-time window.
-        TODO: This does not work on the Cloud Dataflow Runner : SO #56665403
         """
         (hashtags
          | 'Apply %s Min FW' % '30' >> beam.WindowInto(
