@@ -1,3 +1,5 @@
+Note: Servers might be paused cuz I'm poor.
+
 ## Hashtags Battle
 > PLAYGROUND. Real-time Twitter's hashtags analytics. 
 
