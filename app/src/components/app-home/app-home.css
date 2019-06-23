@@ -1,6 +1,29 @@
 #map {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    z-index: -1;
+}
+
+.ol__events {
+    border-radius: 0.5rem;
+    box-shadow: 0 15px 35px 0 rgba(42, 51, 83, .12), 0 5px 15px rgba(0, 0, 0, .06);
+    background: #fff;
+    z-index: 999;
+    width: 100%;
+    max-width: 300px;
+    min-height: 300px;
+    overflow-y: auto;
+    padding: 20px;
+    margin: 0;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+.ol__events .title {
+    font-weight: bolder;
+    font-size: 1.2rem;
+    margin-bottom: 1em;
 }

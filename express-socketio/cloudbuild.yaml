@@ -1,5 +1,4 @@
 steps:
-  # Decrypt env secrets
   - name: gcr.io/cloud-builders/gcloud
     args:
       - kms
@@ -9,9 +8,10 @@ steps:
       - --location=global
       - --keyring=cloudbuild-env
       - --key=cloudbuild-env
-    id: decrypt
-  # Deploy the Docker image
+    id: 'decrypt key'
+
   - name: gcr.io/cloud-builders/gcloud
     args: ['app', 'deploy', './socket/app.yaml', '-v', '1-socket-latest']
-    id: deploy
-timeout: 1200s
+    id: 'deploy app engine'
+
+timeout: 660s

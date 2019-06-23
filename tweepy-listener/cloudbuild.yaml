@@ -1,5 +1,4 @@
 steps:
-  # Decrypt env secrets
   - name: gcr.io/cloud-builders/gcloud
     args:
       - kms
@@ -9,12 +8,14 @@ steps:
       - --location=global
       - --keyring=cloudbuild-env
       - --key=cloudbuild-env
-    id: decrypt
+    id: 'decrypt key'
+
   - name: python:3.7
-    args: ["bash", "./tweets/tests/runner.sh"]
-    id: pytest
-  # Deploy the Docker image
+    args: ['bash', './tweets/tests/runner.sh']
+    id: 'pytest unit tests'
+
   - name: gcr.io/cloud-builders/gcloud
     args: ['app', 'deploy', './tweets/app.yaml', '-v', '1-scrapper-latest']
-    id: deploy
-timeout: 1200s
+    id: 'deploy app engine'
+
+timeout: 660s
