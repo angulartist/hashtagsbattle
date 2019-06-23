@@ -20,7 +20,7 @@ api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=False)
 
 # PUB/SUB CONFIGURATION
 BATCH_BYTES = 2048
-BATCH_LATENCY = 2
+BATCH_LATENCY = 1
 batch_settings = pubsub_v1.types.BatchSettings(max_bytes=BATCH_BYTES, max_latency=BATCH_LATENCY)
 publisher = pubsub_v1.PublisherClient(batch_settings)
 topic_path = publisher.topic_path(project_id, pub_sub_input)
@@ -66,6 +66,7 @@ def reformat_tweet(tweet):
                     tweet["entities"]["hashtags"]
                     if not is_bad_format(key["text"])
             ],
+            "location"  : tweet["coordinates"]
 
     }
 
@@ -75,21 +76,24 @@ def reformat_tweet(tweet):
 class StdOutListener(StreamListener):
     def __init__(self):
         super(StdOutListener, self).__init__()
-        self._counter = 0
 
     def on_status(self, dataset):
         tweet = dataset._json
-        if does_contain_hashtags(tweet):
+        if tweet["coordinates"]:
             write_to_pubsub(reformat_tweet(tweet))
-            self._counter += 1
             return True
+
+    def on_timeout(self):
+        print('Timeout!')
+        return True
 
     def on_error(self, status):
         if status == 420:
-            print("Rate limit active!")
-            return False
+            print('Rate limit active!', status)
+        return True
 
 
 listener = StdOutListener()
 stream = tweepy.Stream(auth, listener, tweet_mode='extended')
-stream.sample(languages=languages)
+WORLD_WIDE = [-180, -90, 180, 90]
+stream.filter(locations=WORLD_WIDE)

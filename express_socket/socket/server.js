@@ -8,8 +8,8 @@ const {PubSub} = require('@google-cloud/pubsub')
 
 const SUBSCRIPTION = 'new_tweets'
 
-function notifyClient({id, data, attributes}) {
-    io.emit('tweet', {id, data, attributes})
+function notifyClient(element) {
+    io.emit('tweet', element)
 }
 
 function listenForMessages(subscriptionName) {
@@ -19,7 +19,7 @@ function listenForMessages(subscriptionName) {
     const messageHandler = (message) => {
         console.log(`Received message ${message.id}:`)
         message.ack()
-        notifyClient(message)
+        notifyClient(JSON.parse(Buffer.from(message.data, 'base64').toString()))
     }
 
     subscription.on(`message`, messageHandler)

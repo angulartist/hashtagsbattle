@@ -2,12 +2,13 @@
   "name": "hashtagsbattle",
   "private": true,
   "version": "0.0.1",
-  "description": "Stencil App Starter",
+  "description": "Real-time tweets analytics powered by GCP!",
   "scripts": {
     "build": "stencil build",
     "start": "stencil build --dev --watch --serve",
     "test": "stencil test --spec --e2e",
-    "test.watch": "stencil test --spec --e2e --watchAll"
+    "test.watch": "stencil test --spec --e2e --watchAll",
+    "deploy": "firebase deploy --debug --token \"$FIREBASE_TOKEN\""
   },
   "dependencies": {
     "@stencil/core": "^1.0.7",
