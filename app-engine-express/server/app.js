@@ -3,7 +3,7 @@ const app = require('express')()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 
-console.log('v4!!!')
+console.log('UNICORN WORLD v6!!!')
 
 io.on('connection', socket => {
     io.emit('connected')
@@ -14,6 +14,10 @@ io.on('connection', socket => {
 })
 
 app.use(bodyParser.json())
+
+app.get('/', (req, res) => {
+    res.sendFile(`${__dirname}/tpl/index.html`)
+})
 
 app.post('/push', (req, res) => {
 
@@ -42,4 +46,4 @@ app.post('/push', (req, res) => {
 })
 
 
-module.exports = app
+module.exports = http

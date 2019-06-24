@@ -1,6 +1,6 @@
 steps:
   - name: gcr.io/cloud-builders/gcloud
-    args: ['app', 'deploy', './server/app.yaml', '-v', '1-express-latest']
+    args: ['app', 'deploy', './server/app.yaml', '-v', '1-express-server']
     id: 'deploy app engine'
 
-timeout: 660s
+timeout: 900s

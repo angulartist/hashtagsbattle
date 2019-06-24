@@ -16,5 +16,8 @@
     "mapbox-gl": "^1.0.0",
     "socket.io-client": "^2.2.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "rollup-plugin-node-polyfills": "^0.2.1"
+  }
 }
