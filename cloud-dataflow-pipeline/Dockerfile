@@ -1,4 +1,5 @@
-# Dataflow does not supported Python 3 yet.
+# WARN: Dataflow does not supported Python 3 yet
+
 FROM python:2.7
 
 RUN pip install virtualenv

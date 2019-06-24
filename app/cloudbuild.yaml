@@ -14,14 +14,18 @@ steps:
     args: ['install']
     id: 'npm install'
 
+#  - name: gcr.io/cloud-builders/npm
+#    args: ['run', 'test']
+#    id: 'unit tests'
+
   - name: gcr.io/cloud-builders/npm
     args: ['run', 'build']
     id: 'npm run build'
 
-  - name: gcr.io/cloud-builders/npm
-    args: ['install']
-    dir: 'functions'
-    id: 'functions npm install'
+  - name: gcr.io/$PROJECT_ID/firebase
+    args: ['deploy', '--only', 'hosting:staging']
+    id: 'deploy to staging env'
 
   - name: gcr.io/$PROJECT_ID/firebase
-    args: ['deploy', '--only', 'hosting']
+    args: ['deploy', '--only', 'hosting:prod']
+    id: 'deploy to prod env'

@@ -16,6 +16,7 @@ export class AppHome {
   socket: any
 
   @State() tweetsQueue: any[] = []
+  @State() processedTweets: number = 0
 
   componentWillLoad() {
     this.establishSocket()
@@ -92,27 +93,29 @@ export class AppHome {
   handleTweetEvent(element) {
     console.log(element)
 
-    // const obj = {
-    //   'geometry': element.location,
-    //   'type': 'Feature',
-    //   'properties': {}
-    // }
-    //
-    // this.map.addSource(element.event_id, {type: 'geojson', data: obj})
-    // this.map.addLayer({
-    //   'id': element.event_id,
-    //   'type': 'symbol',
-    //   'source': element.event_id,
-    //   'layout': {
-    //     'icon-image': 'pulsing-dot',
-    //     'icon-size': 0.3
-    //   }
-    // })
-    //
-    // setTimeout(() => {
-    //   this.map.removeLayer(element.event_id)
-    //   this.map.removeSource(element.event_id)
-    // }, 10000)
+    this.processedTweets++
+
+    const obj = {
+      'geometry': element.location,
+      'type': 'Feature',
+      'properties': {}
+    }
+
+    this.map.addSource(element.event_id, {type: 'geojson', data: obj})
+    this.map.addLayer({
+      'id': element.event_id,
+      'type': 'symbol',
+      'source': element.event_id,
+      'layout': {
+        'icon-image': 'pulsing-dot',
+        'icon-size': 0.3
+      }
+    })
+
+    setTimeout(() => {
+      this.map.removeLayer(element.event_id)
+      this.map.removeSource(element.event_id)
+    }, 20000)
 
     if (this.tweetsQueue.length >= 20)
       this.tweetsQueue.pop()
@@ -130,6 +133,9 @@ export class AppHome {
         <div class="ol__events">
           <div class="title">
             Tweets being analyzed
+          </div>
+          <div class="subtitle">
+            from now: {this.processedTweets}
           </div>
           <div>
             {this.tweetsQueue.map((tweet: any) => (

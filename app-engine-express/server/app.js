@@ -3,8 +3,6 @@ const app = require('express')()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 
-console.log('UNICORN WORLD v6!!!')
-
 io.on('connection', socket => {
     io.emit('connected')
 
@@ -35,13 +33,13 @@ app.post('/push', (req, res) => {
     }
 
     const pubSubMessage = req.body.message
-    const name = pubSubMessage.data
-        ? Buffer.from(pubSubMessage.data, 'base64').toString().trim()
-        : 'World'
 
-    io.emit('tweet', name)
+    const tweet = JSON.parse(Buffer.from(pubSubMessage.data, 'base64').toString())
 
-    console.log(`Hello ${name}!`)
+    io.emit('tweet', tweet)
+
+    console.log(`Received ${tweet.event_id}!`)
+
     res.status(204).send()
 })
 
