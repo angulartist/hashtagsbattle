@@ -10,13 +10,17 @@ steps:
       - --key=firebase-token
     id: 'decrypt'
 
+  - name: gcr.io/$PROJECT_ID/firebase
+    args: [ 'use', '$_PROJECT_NAME']
+    id: 'use firebase project'
+
   - name: gcr.io/cloud-builders/npm
     args: ['install']
     id: 'npm install'
 
-#  - name: gcr.io/cloud-builders/npm
-#    args: ['run', 'test']
-#    id: 'unit tests'
+  #  - name: gcr.io/cloud-builders/npm
+  #    args: ['run', 'test']
+  #    id: 'unit tests'
 
   - name: gcr.io/cloud-builders/npm
     args: ['run', 'build']

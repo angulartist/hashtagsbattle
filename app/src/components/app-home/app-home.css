@@ -9,11 +9,10 @@
 .ol__events {
   border-radius: 0.5rem;
   box-shadow: 0 15px 35px 0 rgba(42, 51, 83, .12), 0 5px 15px rgba(0, 0, 0, .06);
-  background: #fff;
+  background: rgba(255, 255, 255, 0.4);
   z-index: 999;
   width: 100%;
   max-width: 300px;
-  min-height: 300px;
   overflow-y: auto;
   padding: 20px;
   margin: 0;

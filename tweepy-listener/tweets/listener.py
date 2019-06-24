@@ -19,9 +19,9 @@ auth.set_access_token(listener_1["access_token"], listener_1["access_token_secre
 api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=False)
 
 # PUB/SUB CONFIGURATION
-BATCH_BYTES = 2048
+# BATCH_BYTES = 512
 BATCH_LATENCY = 1
-batch_settings = pubsub_v1.types.BatchSettings(max_bytes=BATCH_BYTES, max_latency=BATCH_LATENCY)
+batch_settings = pubsub_v1.types.BatchSettings(max_latency=BATCH_LATENCY)
 publisher = pubsub_v1.PublisherClient(batch_settings)
 topic_path = publisher.topic_path(project_id, pub_sub_input)
 

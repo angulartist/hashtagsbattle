@@ -3,8 +3,8 @@ steps:
     args:
       - kms
       - decrypt
-      - --ciphertext-file=./gcp_credentials.json.enc
-      - --plaintext-file=./gcp_credentials.json
+      - --ciphertext-file=./env.json.enc
+      - --plaintext-file=./env.json
       - --location=global
       - --keyring=cloudbuild-env
       - --key=cloudbuild-env
