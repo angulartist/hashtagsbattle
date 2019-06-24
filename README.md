@@ -25,8 +25,11 @@ As you can see, this is fully managed by Google Cloud Platform.
 ![GCPimplementation](https://camo.githubusercontent.com/112f0a46af60d9d806198e82ae58dde2ce145081/68747470733a2f2f692e696d6775722e636f6d2f4f4d7744307a592e706e67)
 
 # TODO :
-- Use Pub/Sub push method instead of pull (lower latency)
-- 
+- [X] Use Pub/Sub push method instead of pull (lower latency)
+- [ ] Migrate to BigTable
+- [ ] UI
+- [ ] Doc
+...
 
 # Installation
 
