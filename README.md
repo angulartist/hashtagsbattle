@@ -12,7 +12,7 @@ A:
 
 - First of, there's a tweets listener built with [Tweepy](https://tweepy.readthedocs.io) which retrieves tweets sent back by the Twitter API. It does some basic cleaning and filtering before publishing them to a [Pub/Sub](https://cloud.google.com/pubsub/docs/overview) topic, which is basically a messaging bus. The listener is running on a [Google App Engine](https://cloud.google.com/appengine/) instance. 
 
-- Then, there's a little [Express](https://expressjs.com/) server using [SocketIO](https://socket.io/). This application is also running on App Engine. It's quite useful because I wanted to represent the current tweets location in Real-Time on a [Mapbox](https://www.mapbox.com/) map. Storing this data (in Firebase for example) isn't useful and will be quite expensive. 
+- Then, there's a little [Express](https://expressjs.com/) server using [SocketIO](https://socket.io/). This application is also running on App Engine. There's an endpoint receiving Pub/Sub push messages and emiting events through a web socket.
 
 - The heart of my project is the [Apache-Beam](https://beam.apache.org/) streaming processing pipeline running on the [Cloud Dataflow](https://cloud.google.com/dataflow) runner. This pipeline consumes events sent by the source Pub/Sub topic and it does some data transformations (grouping, counting, filtering, batching...) before sending back the pre-aggregated output to another Pub/Sub topic. I'm playing with some windows and some triggers to achieve a quite low-latency.
 
