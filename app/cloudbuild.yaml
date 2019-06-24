@@ -26,9 +26,9 @@ steps:
     args: ['run', 'build']
     id: 'npm run build'
 
-  - name: gcr.io/$PROJECT_ID/firebase
-    args: ['deploy', '--only', 'hosting:staging']
-    id: 'deploy to staging env'
+#  - name: gcr.io/$PROJECT_ID/firebase
+#    args: ['deploy', '--only', 'hosting:staging']
+#    id: 'deploy to staging env'
 
   - name: gcr.io/$PROJECT_ID/firebase
     args: ['deploy', '--only', 'hosting:prod']
