@@ -12,7 +12,7 @@ A:
 
 - First of, there's a tweets listener built with [Tweepy](https://tweepy.readthedocs.io) which retrieves tweets sent back by the Twitter API. It does some basic cleaning and filtering before publishing them to a [Pub/Sub](https://cloud.google.com/pubsub/docs/overview) topic, which is basically a messaging bus. The listener is running on a [Google App Engine](https://cloud.google.com/appengine/) instance. 
 
-- Then, there's a little [Express](https://expressjs.com/) server using [SocketIO](https://socket.io/). This application is also running on App Engine. There's an endpoint receiving Pub/Sub push messages and emiting events through a web socket.
+- Then, there's a little [Express](https://expressjs.com/) server using [SocketIO](https://socket.io/). This application is also running on App Engine. There's an endpoint receiving Pub/Sub push messages and emiting events through a web socket. A portion of the data is cached in a [Redis](https://redislabs.com) instance.
 
 - The heart of my project is the [Apache-Beam](https://beam.apache.org/) streaming processing pipeline running on the [Cloud Dataflow](https://cloud.google.com/dataflow) runner. This pipeline consumes events sent by the source Pub/Sub topic and it does some data transformations (grouping, counting, filtering, batching...) before sending back the pre-aggregated output to another Pub/Sub topic. I'm playing with some windows and some triggers to achieve a quite low-latency.
 
@@ -22,7 +22,7 @@ The Web-App is built with [Stencil](https://stenciljs.com/) and it's deployed to
 
 As you can see, this is fully managed by Google Cloud Platform.
 
-![GCPimplementation](https://camo.githubusercontent.com/112f0a46af60d9d806198e82ae58dde2ce145081/68747470733a2f2f692e696d6775722e636f6d2f4f4d7744307a592e706e67)
+![GCPimplementation](https://i.imgur.com/8WWeGfa.png)
 
 # TODO :
 - [X] Use Pub/Sub push method instead of pull (lower latency)
