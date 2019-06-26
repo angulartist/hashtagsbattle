@@ -2,7 +2,7 @@ import {Component, h, State} from '@stencil/core'
 import io from 'socket.io-client'
 import mapboxgl from 'mapbox-gl'
 
-import {DEV_SOCKET_ENDPOINT} from '../../conf'
+import {LOCAL} from '../../conf'
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoiam9obmRvZTY5IiwiYSI6ImNqeDhwYnp5bDBsbmUzb290dDY2Ynd6dWwifQ.I9CRLsBtq8B1I-RyqGms4A'
 
@@ -30,6 +30,7 @@ export class AppHome {
     const map: any = new mapboxgl.Map({
       container: this.mapElement,
       style: 'mapbox://styles/mapbox/dark-v10'
+      // maxBounds: [-7.117676, 41.730608, 10.522949, 51.138001]
     })
 
     map.on('load', () => {
@@ -94,26 +95,44 @@ export class AppHome {
   }
 
   establishSocket() {
-    this.socket = io(DEV_SOCKET_ENDPOINT)
+    this.socket = io(LOCAL)
   }
 
   monitorEvents() {
     this.socket.on('connected', () => AppHome.logger('Connection ACK'))
 
-    this.socket.on('tweet', (element) => this.handleTweetEvent(element))
+    // this.socket.on('tweet', (element) => this.handleTweetEvent(element))
+
+    this.socket.on('locations', (locations: any[]) => this.updateLocations(locations))
   }
 
-  handleTweetEvent(element) {
-    this.processedTweets++
+  updateLocations(locations: any[]) {
+    this.processedTweets = locations.length
 
-    const point = {
+    const points = locations.map(({lat, lng}) => ({
       type: 'Feature',
-      geometry: element.location
-    }
+      geometry: {type: 'Point', coordinates: [lat, lng]}
+    }))
 
-    this.geojson.features.push(point)
-    this.map.getSource('tweets-source').setData(this.geojson)
+    console.log(points)
+
+    this.geojson.features = points
+
+    if (this.map.getSource('tweets-source')) this.map.getSource('tweets-source').setData(this.geojson)
   }
+
+  // handleTweetEvent(element) {
+  //   this.processedTweets++
+  //
+  //   const point = {
+  //     type: 'Feature',
+  //     geometry: element.location
+  //   }
+  //
+  //   this.geojson.features.push(point)
+  //
+  //   if (this.map.getSource('tweets-source')) this.map.getSource('tweets-source').setData(this.geojson)
+  // }
 
   static logger(smth) {
     console.log(smth)

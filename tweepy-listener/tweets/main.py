@@ -18,20 +18,16 @@ auth = tweepy.OAuthHandler(listener_1["consumer_key"], listener_1["consumer_secr
 auth.set_access_token(listener_1["access_token"], listener_1["access_token_secret"])
 api = tweepy.API(auth, wait_on_rate_limit=True, wait_on_rate_limit_notify=False)
 
-# PUB/SUB CONFIGURATION
-# BATCH_BYTES = 512
-BATCH_LATENCY = 1
-batch_settings = pubsub_v1.types.BatchSettings(max_latency=BATCH_LATENCY)
-publisher = pubsub_v1.PublisherClient(batch_settings)
+publisher = pubsub_v1.PublisherClient()
 topic_path = publisher.topic_path(project_id, pub_sub_input)
 
 
 def write_to_pubsub(element):
     try:
-        pprint(element)
-        # event_id = element["event_id"]
         payload = json.dumps(element).encode("utf-8")
-        publisher.publish(topic=topic_path, data=payload)
+        publisher.publish(topic=topic_path,
+                          data=payload,
+                          event_id=element["id"])
     except Exception as exception:
         raise exception
 
@@ -56,17 +52,17 @@ def is_bad_format(element):
 
 def reformat_tweet(tweet):
     element = {
-            "event_id"  : str(tweet["id"]),
-            "event_time": time.mktime(
+            "id"         : str(tweet["id"]),
+            "timestamp"  : time.mktime(
                     time.strptime(tweet["created_at"], "%a %b %d %H:%M:%S +0000 %Y")),
-            "hashtags"  : [
+            "hashtags"   : [
                     {"tag": key["text"], "key": generate_key(key["text"])}
                     for key
                     in
                     tweet["entities"]["hashtags"]
                     if not is_bad_format(key["text"])
             ],
-            "location"  : tweet["coordinates"]
+            "coordinates": [k for k in tweet["coordinates"]["coordinates"]]
 
     }
 
@@ -80,8 +76,10 @@ class StdOutListener(StreamListener):
     def on_status(self, dataset):
         tweet = dataset._json
         if tweet["coordinates"]:
+            print (tweet)
             write_to_pubsub(reformat_tweet(tweet))
-            return True
+
+        return True
 
     def on_timeout(self):
         print('Timeout!')
@@ -94,6 +92,7 @@ class StdOutListener(StreamListener):
 
 
 listener = StdOutListener()
-stream = tweepy.Stream(auth, listener, tweet_mode='extended')
-WORLD_WIDE = [-180, -90, 180, 90]
-stream.filter(locations=WORLD_WIDE)
+stream = tweepy.Stream(auth, listener)
+WORLD_BOUNDS = [-180, -90, 180, 90]
+# FRANCE_BOUNDS = [-13.117676, 40.730608, 18.522949, 51.138001]
+stream.filter(locations=WORLD_BOUNDS)

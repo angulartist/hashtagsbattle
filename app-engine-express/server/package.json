@@ -12,9 +12,12 @@
   "dependencies": {
     "@google-cloud/pubsub": "^0.30.1",
     "express": "^4.17.1",
-    "memory-cache": "^0.2.0",
+    "georedis": "^3.1.1",
+    "nconf": "^0.10.0",
     "redis": "^2.8.0",
-    "socket.io": "^2.2.0"
+    "redis-rejson": "^1.0.0",
+    "socket.io": "^2.2.0",
+    "url": "^0.11.0"
   },
   "devDependencies": {
     "@google-cloud/nodejs-repo-tools": "^3.1.0",
