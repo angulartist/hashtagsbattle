@@ -1,0 +1,26 @@
+swagger: "2.0"
+
+info:
+  description: "Cloud Endpoints API."
+  title: "Cloud Endpoints - GAE Flex"
+  version: "1.0.0"
+host: "notbanana-7f869.appspot.com"
+
+paths:
+  "/push":
+    post:
+      description: "PubSub push endpoint."
+      operationId: "pubsub_push"
+      produces:
+        - "application/json"
+      responses:
+        204:
+          description: "Ack"
+      security:
+        - api_key: []
+
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "key"
+    in: "query"

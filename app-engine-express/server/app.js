@@ -56,23 +56,23 @@ app.post('/push', (req, res) => {
 
 // # LOCAL TESTING ONLY # //
 
-const {PubSub} = require(`@google-cloud/pubsub`)
-const pubsub = new PubSub()
-const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
-const subscription = pubsub.subscription(subscriptionName)
-
-
-const messageHandler = message => {
-    message.ack()
-
-    const {id, coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
-
-    const [lat, lng] = coordinates
-
-    putLocation({id, lat, lng})
-}
-
-subscription.on(`message`, messageHandler)
+// const {PubSub} = require(`@google-cloud/pubsub`)
+// const pubsub = new PubSub()
+// const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
+// const subscription = pubsub.subscription(subscriptionName)
+//
+//
+// const messageHandler = message => {
+//     message.ack()
+//
+//     const {id, coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
+//
+//     const [lat, lng] = coordinates
+//
+//     putLocation({id, lat, lng})
+// }
+//
+// subscription.on(`message`, messageHandler)
 
 
 cache.set('locations', [])
