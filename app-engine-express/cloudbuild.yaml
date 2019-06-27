@@ -1,6 +1,6 @@
 steps:
   - name: gcr.io/cloud-builders/gcloud
-    args: ['app', 'deploy', './server/app.flexible.yaml', '-v', '$SHORT_SHA']
+    args: ['app', 'deploy', './server/app.flexible.yaml', '-v', '$_VID']
     id: 'deploy app engine'
 
 timeout: 900s
