@@ -1,7 +1,7 @@
 {
-  "name": "cloud-run-express-app",
+  "name": "gce-express-app",
   "version": "1.0.0",
-  "description": "Express Cloud Run",
+  "description": "Express GCE",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -12,12 +12,8 @@
   "dependencies": {
     "@google-cloud/pubsub": "^0.30.1",
     "express": "^4.17.1",
-    "georedis": "^3.1.1",
-    "nconf": "^0.10.0",
-    "redis": "^2.8.0",
-    "redis-rejson": "^1.0.0",
-    "socket.io": "^2.2.0",
-    "url": "^0.11.0"
+    "node-cache": "^4.2.0",
+    "socket.io": "^2.2.0"
   },
   "devDependencies": {
     "@google-cloud/nodejs-repo-tools": "^3.1.0",
