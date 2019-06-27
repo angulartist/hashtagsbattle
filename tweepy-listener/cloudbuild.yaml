@@ -15,7 +15,7 @@ steps:
     id: 'pytest unit tests'
 
   - name: gcr.io/cloud-builders/gcloud
-    args: ['app', 'deploy', './tweets/app.yaml', '-v', '1-scrapper-latest-yellow-yeti']
+    args: ['app', 'deploy', './tweets/app.yaml', '-v', '1-scrapper-latest-greenpy']
     id: 'deploy app engine'
 
 timeout: 660s

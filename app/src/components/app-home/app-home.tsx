@@ -18,8 +18,12 @@ export class AppHome {
     'type': 'FeatureCollection',
     'features': []
   }
+  tmpGeojson = {
+    'type': 'FeatureCollection',
+    'features': []
+  }
 
-  @State() processedTweets: number = 0
+  @State() numLocations: number = 0
 
   componentWillLoad() {
     this.establishSocket()
@@ -29,16 +33,79 @@ export class AppHome {
   componentDidLoad() {
     const map: any = new mapboxgl.Map({
       container: this.mapElement,
-      style: 'mapbox://styles/mapbox/dark-v10'
-      // maxBounds: [-7.117676, 41.730608, 10.522949, 51.138001]
+      style: 'mapbox://styles/mapbox/light-v9',
+      zoom: 3
     })
 
+    const size = 50
+
+    const pulsingDot = {
+      width: size,
+      height: size,
+      data: new Uint8Array(size * size * 4),
+
+      onAdd: function () {
+        const canvas = document.createElement('canvas')
+        canvas.width = this.width
+        canvas.height = this.height
+        this.context = canvas.getContext('2d')
+      },
+
+      render: function () {
+        const duration = 500
+        const t = (performance.now() % duration) / duration
+
+        const radius = size / 2 * 0.3
+        const outerRadius = size / 2 * 0.7 * t + radius
+        const context = this.context
+
+        context.clearRect(0, 0, this.width, this.height)
+        context.beginPath()
+        context.arc(this.width / 2, this.height / 2, outerRadius, 0, Math.PI * 2)
+        context.fillStyle = 'rgba(255, 200, 200,' + (1 - t) + ')'
+        context.fill()
+
+        context.beginPath()
+        context.arc(this.width / 2, this.height / 2, radius, 0, Math.PI * 2)
+        context.fillStyle = 'rgba(255, 100, 100, 1)'
+        context.strokeStyle = 'white'
+        context.lineWidth = 2 + 4 * (1 - t)
+        context.fill()
+        context.stroke()
+
+        this.data = context.getImageData(0, 0, this.width, this.height).data
+
+        map.triggerRepaint()
+
+        return true
+      }
+    }
+
     map.on('load', () => {
+      map.loadImage('https://i.imgur.com/YVAY5dJ.png', function (error, image) {
+        if (error) throw error
+        map.addImage('twitter', image)
+      })
+
+      map.addImage('pulsing-dot', pulsingDot, {pixelRatio: 2})
+
+      map.addSource('tmp-source', {type: 'geojson', data: this.tmpGeojson})
+
+      map.addLayer({
+        id: 'tmp-dot',
+        type: 'symbol',
+        source: 'tmp-source',
+        'layout': {
+          'icon-image': 'pulsing-dot'
+        }
+      })
+
       map.addSource('tweets-source', {
         type: 'geojson', data: this.geojson, cluster: true,
         clusterMaxZoom: 14,
         clusterRadius: 50
       })
+
       map.addLayer({
         id: 'tweets-layer',
         type: 'circle',
@@ -65,6 +132,7 @@ export class AppHome {
           ]
         }
       })
+
       map.addLayer({
         id: 'cluster-count',
         type: 'symbol',
@@ -79,14 +147,12 @@ export class AppHome {
 
       map.addLayer({
         id: 'unclustered-point',
-        type: 'circle',
+        type: 'symbol',
         source: 'tweets-source',
         filter: ['!', ['has', 'point_count']],
-        paint: {
-          'circle-color': '#11b4da',
-          'circle-radius': 4,
-          'circle-stroke-width': 1,
-          'circle-stroke-color': '#fff'
+        'layout': {
+          'icon-image': 'twitter',
+          'icon-size': 0.25
         }
       })
     })
@@ -101,22 +167,27 @@ export class AppHome {
   monitorEvents() {
     this.socket.on('connected', () => AppHome.logger('Connection ACK'))
 
-    // this.socket.on('tweet', (element) => this.handleTweetEvent(element))
-
     this.socket.on('locations', (locations: any[]) => this.updateLocations(locations))
+
+    this.socket.on('location', (location: any) => this.pingMap(location))
+  }
+
+  pingMap({lat, lng}: any) {
+    this.numLocations++
+
+    this.tmpGeojson.features = [{
+      type: 'Feature',
+      geometry: {type: 'Point', coordinates: [lat, lng]}
+    }, ...this.tmpGeojson.features.slice(0, 50)]
+
+    if (this.map.getSource('tmp-source')) this.map.getSource('tmp-source').setData(this.tmpGeojson)
   }
 
   updateLocations(locations: any[]) {
-    this.processedTweets = locations.length
-
-    const points = locations.map(({lat, lng}) => ({
+    this.geojson.features = locations.map(({lat, lng}) => ({
       type: 'Feature',
       geometry: {type: 'Point', coordinates: [lat, lng]}
     }))
-
-    console.log(points)
-
-    this.geojson.features = points
 
     if (this.map.getSource('tweets-source')) this.map.getSource('tweets-source').setData(this.geojson)
   }
@@ -141,13 +212,10 @@ export class AppHome {
   render() {
     return (
       <div class='app-home'>
-        <div class="ol__events">
-          <div class="title">
-            {this.processedTweets}
-          </div>
-          <div class="subtitle">
-            Tweets processed
-          </div>
+        <div class="tw__timeline">
+          <div class="tw__title">
+            <i class="fab fa-twitter"/>
+            <span>{this.numLocations}</span></div>
         </div>
         <div ref={(el) => this.mapElement = el} id="map"/>
       </div>

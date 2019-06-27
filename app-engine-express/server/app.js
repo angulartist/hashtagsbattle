@@ -56,33 +56,35 @@ app.post('/push', (req, res) => {
 
 // # LOCAL TESTING ONLY # //
 
-// const {PubSub} = require(`@google-cloud/pubsub`)
-// const pubsub = new PubSub()
-// const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
-// const subscription = pubsub.subscription(subscriptionName)
-//
-//
-// const messageHandler = message => {
-//     message.ack()
-//
-//     const {id, coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
-//
-//     const [lat, lng] = coordinates
-//
-//     putLocation({id, lat, lng})
-// }
-//
-// subscription.on(`message`, messageHandler)
+const {PubSub} = require(`@google-cloud/pubsub`)
+const pubsub = new PubSub()
+const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
+const subscription = pubsub.subscription(subscriptionName)
+
+
+const messageHandler = message => {
+    message.ack()
+
+    const {id, coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
+
+    const [lat, lng] = coordinates
+
+    putLocation({id, lat, lng})
+}
+
+subscription.on(`message`, messageHandler)
 
 
 cache.set('locations', [])
 
 function putLocation(location) {
+    io.emit('location', location)
+
     let locations = cache.get('locations')
 
-    if (locations.length > 10000) {
-        locations = locations.slice(0, 9990)
-    }
+    // if (locations.length > 10000) {
+    //     locations = locations.slice(0, 9990)
+    // }
 
     cache.set('locations', [location, ...locations])
 }
@@ -95,7 +97,7 @@ function getLocations() {
     console.log('emited', locations.length)
 }
 
-setInterval(() => getLocations(), 5000)
+setInterval(() => getLocations(), 10 * 1000)
 
 
 module.exports = http

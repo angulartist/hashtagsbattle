@@ -32,3 +32,24 @@
   color: rgba(0, 0, 0, 0.85);
   margin-bottom: 1em;
 }
+
+
+.tw__timeline {
+  border-radius: 0.5rem;
+  box-shadow: 0 15px 35px 0 rgba(42, 51, 83, .12), 0 5px 15px rgba(0, 0, 0, .06);
+  background: #fff;
+  z-index: 999;
+  width: 100%;
+  max-width: 300px;
+  overflow-y: auto;
+  padding: 20px;
+  margin: 0;
+  position: absolute;
+  left: 20px;
+  top: 20px;
+}
+
+.tw__title {
+  font-weight: bolder;
+  font-size: 2em;
+}
