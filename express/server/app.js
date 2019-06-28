@@ -70,13 +70,11 @@ app.post('/push', (req, res) => {
 // const subscription = pubsub.subscription(subscriptionName)
 //
 // const messageHandler = message => {
+//     const {coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
+//
+//     putLocation(`${coordinates[0]}_${coordinates[1]}`)
+//
 //     message.ack()
-//
-//     const {id, coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
-//
-//     const [lat, lng] = coordinates
-//
-//     putLocation({id, lat, lng})
 // }
 //
 // subscription.on(`message`, messageHandler)
@@ -92,9 +90,16 @@ function initCache() {
         io.emit(LOCATION_KEY, data)
 
         console.info('emitted', data.length, 'items')
+
+        printKiloBytes('array', JSON.stringify(data))
     })
 
     console.info('Initialized cache!!!')
+}
+
+
+function printKiloBytes(tag, str) {
+    console.log(tag, Buffer.byteLength(str, 'utf8') / 1024, str.length)
 }
 
 function putLocation(location) {
