@@ -216,6 +216,8 @@ export class AppHome {
       })), ...this.geojson.features]
     }
 
+    console.log(this.geojson.features.length)
+
 
     if (this.map.getSource('tweets-source')) this.map.getSource('tweets-source').setData(this.geojson)
   }
