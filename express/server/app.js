@@ -82,13 +82,13 @@ function initCache() {
     cache.set('locations', [])
     cache.set('batch', [])
     // Cache events
-    cache.on('set', function (key, data) {
+    cache.on('set', function (key, batch) {
         if (key !== BATCH_KEY) return
-        if (data.length >= MAX_BATCH_SIZE) {
+        if (batch.length >= MAX_BATCH_SIZE) {
             io.emit('batch', batch)
             cache.set(BATCH_KEY, [])
-            console.info('emitted', data.length, 'items')
-            printKiloBytes('array', JSON.stringify(data))
+            console.info('emitted', batch.length, 'items')
+            printKiloBytes('array', JSON.stringify(batch))
         }
     })
     console.info('Initialized cache!!!')
