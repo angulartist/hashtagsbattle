@@ -4,10 +4,10 @@ const http = require('http').Server(app)
 const io = require('socket.io')(http)
 const NodeCache = require('node-cache')
 
-const LOCATION_KEY = 'locations'
-const BATCH_KEY = 'batch'
-const MAX_LOCATIONS = 100000
-const MAX_BATCH_SIZE = 20
+const LOCATION_KEY = 'locations' // stored in memory
+const BATCH_KEY = 'batch' // stored in memory
+const MAX_LOCATIONS = 50000 // max tweets
+const MAX_BATCH_SIZE = 20 // update every X
 
 const cache = new NodeCache({
     useClones: false
@@ -36,29 +36,26 @@ app.get('/', (req, res) => {
  * PUB/SUB PUSH ENDPOINT
  */
 app.post('/push', (req, res) => {
-
-    if (!req.body) {
+    // Checking bad format
+    const {body} = req
+    if (!body) {
         const msg = 'no Pub/Sub message received'
         console.error(`error: ${msg}`)
         res.status(400).send(`Bad Request: ${msg}`)
         return
     }
-    if (!req.body.message) {
+    if (!body.message) {
         const msg = 'invalid Pub/Sub message format'
         console.error(`error: ${msg}`)
         res.status(400).send(`Bad Request: ${msg}`)
         return
     }
 
+    // Retrieve + ACK
     const pubSubMessage = req.body.message
-
-    const {id, coordinates} = JSON.parse(Buffer.from(pubSubMessage.data, 'base64').toString())
-
+    const {coordinates} = JSON.parse(Buffer.from(pubSubMessage.data, 'base64').toString())
     const [lat, lng] = coordinates
-
-    putLocation({id, lat, lng})
-
-    // ACK the message
+    putLocation(`${lat}_${lng}`)
     res.status(204).send()
 })
 
@@ -81,19 +78,16 @@ app.post('/push', (req, res) => {
 
 
 function initCache() {
+    // Cache keys
     cache.set('locations', [])
     cache.set('batch', [])
-
+    // Cache events
     cache.on('set', function (key, data) {
         if (key !== LOCATION_KEY) return
-
         io.emit(LOCATION_KEY, data)
-
         console.info('emitted', data.length, 'items')
-
         printKiloBytes('array', JSON.stringify(data))
     })
-
     console.info('Initialized cache!!!')
 }
 
@@ -104,30 +98,25 @@ function printKiloBytes(tag, str) {
 
 function putLocation(location) {
     let batch = cache.get(BATCH_KEY)
-
     if (batch.length >= MAX_BATCH_SIZE) {
         let locations = cache.get(LOCATION_KEY)
-
         if (locations.length >= MAX_LOCATIONS) {
             locations = locations.slice(0, MAX_LOCATIONS - MAX_BATCH_SIZE)
         }
-
         cache.set(LOCATION_KEY, [...batch, ...locations])
-
-        resetBatch()
+        emitBatch(batch)
     } else {
         cache.set(BATCH_KEY, [location, ...batch])
     }
 }
 
-function resetBatch() {
+function emitBatch(batch) {
+    io.emit('batch', batch)
     cache.set(BATCH_KEY, [])
 }
 
-
 function getLocations() {
     let locations = cache.get('locations')
-
     io.emit('locations', locations)
 }
 

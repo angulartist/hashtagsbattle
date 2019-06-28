@@ -169,6 +169,8 @@ export class AppHome {
 
     this.socket.on('locations', (locations: any[]) => this.updateLocations(locations))
 
+    this.socket.on('batch', (batch: any[]) => this.updateLocations(batch))
+
     this.socket.on('location', (location: any) => this.pingMap(location))
   }
 
@@ -184,9 +186,11 @@ export class AppHome {
   }
 
   updateLocations(locations: any[]) {
-    this.geojson.features = locations.map(({lat, lng}) => ({
+    console.log(locations)
+
+    this.geojson.features = locations.map((key: string) => ({
       type: 'Feature',
-      geometry: {type: 'Point', coordinates: [lat, lng]}
+      geometry: {type: 'Point', coordinates: key.split('_')}
     }))
 
     if (this.map.getSource('tweets-source')) this.map.getSource('tweets-source').setData(this.geojson)
