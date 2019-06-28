@@ -20,12 +20,9 @@ export class AppHome {
     'type': 'FeatureCollection',
     'features': []
   }
-  tmpGeojson = {
-    'type': 'FeatureCollection',
-    'features': []
-  }
 
   @State() numLocations: number = 0
+  @State() isConnected: boolean = false
 
   componentWillLoad() {
     this.establishSocket()
@@ -33,55 +30,14 @@ export class AppHome {
   }
 
   componentDidLoad() {
+    if (this.map) return false
+
     const map: any = new mapboxgl.Map({
       container: this.mapElement,
       style: 'mapbox://styles/mapbox/light-v9',
-      zoom: 3
+      center: [-5, 10],
+      zoom: 2
     })
-
-    const size = 50
-
-    const pulsingDot = {
-      width: size,
-      height: size,
-      data: new Uint8Array(size * size * 4),
-
-      onAdd: function () {
-        const canvas = document.createElement('canvas')
-        canvas.width = this.width
-        canvas.height = this.height
-        this.context = canvas.getContext('2d')
-      },
-
-      render: function () {
-        const duration = 500
-        const t = (performance.now() % duration) / duration
-
-        const radius = size / 2 * 0.3
-        const outerRadius = size / 2 * 0.7 * t + radius
-        const context = this.context
-
-        context.clearRect(0, 0, this.width, this.height)
-        context.beginPath()
-        context.arc(this.width / 2, this.height / 2, outerRadius, 0, Math.PI * 2)
-        context.fillStyle = 'rgba(255, 200, 200,' + (1 - t) + ')'
-        context.fill()
-
-        context.beginPath()
-        context.arc(this.width / 2, this.height / 2, radius, 0, Math.PI * 2)
-        context.fillStyle = 'rgba(255, 100, 100, 1)'
-        context.strokeStyle = 'white'
-        context.lineWidth = 2 + 4 * (1 - t)
-        context.fill()
-        context.stroke()
-
-        this.data = context.getImageData(0, 0, this.width, this.height).data
-
-        map.triggerRepaint()
-
-        return true
-      }
-    }
 
     map.on('load', () => {
       map.loadImage('https://i.imgur.com/YVAY5dJ.png', function (error, image) {
@@ -89,29 +45,16 @@ export class AppHome {
         map.addImage('twitter', image)
       })
 
-      map.addImage('pulsing-dot', pulsingDot, {pixelRatio: 2})
-
-      map.addSource('tmp-source', {type: 'geojson', data: this.tmpGeojson})
-
-      map.addLayer({
-        id: 'tmp-dot',
-        type: 'symbol',
-        source: 'tmp-source',
-        'layout': {
-          'icon-image': 'pulsing-dot'
-        }
-      })
-
-      map.addSource('tweets-source', {
+      map.addSource('tweets', {
         type: 'geojson', data: this.geojson, cluster: true,
         clusterMaxZoom: 14,
-        clusterRadius: 50
+        clusterRadius: 70
       })
 
       map.addLayer({
         id: 'tweets-layer',
         type: 'circle',
-        source: 'tweets-source',
+        source: 'tweets',
         filter: ['has', 'point_count'],
         paint: {
           'circle-color': [
@@ -138,7 +81,7 @@ export class AppHome {
       map.addLayer({
         id: 'cluster-count',
         type: 'symbol',
-        source: 'tweets-source',
+        source: 'tweets',
         filter: ['has', 'point_count'],
         layout: {
           'text-field': '{point_count_abbreviated}',
@@ -150,11 +93,12 @@ export class AppHome {
       map.addLayer({
         id: 'unclustered-point',
         type: 'symbol',
-        source: 'tweets-source',
+        source: 'tweets',
         filter: ['!', ['has', 'point_count']],
         'layout': {
           'icon-image': 'twitter',
-          'icon-size': 0.25
+          'icon-size': 0.25,
+          'icon-allow-overlap': true
         }
       })
     })
@@ -167,24 +111,12 @@ export class AppHome {
   }
 
   monitorEvents() {
-    this.socket.on('connected', () => AppHome.logger('Connection ACK'))
-
+    this.socket.on('connected', () => {
+      AppHome.logger('Connection ACK!')
+      this.isConnected = true
+    })
     this.socket.on('locations', (locations: any[]) => this.setLocations(locations))
-
     this.socket.on('batch', (batch: any[]) => this.updateLocations(batch))
-
-    this.socket.on('location', (location: any) => this.pingMap(location))
-  }
-
-  pingMap({lat, lng}: any) {
-    this.numLocations++
-
-    this.tmpGeojson.features = [{
-      type: 'Feature',
-      geometry: {type: 'Point', coordinates: [lat, lng]}
-    }, ...this.tmpGeojson.features.slice(0, 50)]
-
-    if (this.map.getSource('tmp-source')) this.map.getSource('tmp-source').setData(this.tmpGeojson)
   }
 
   setLocations(locations: any[]) {
@@ -195,7 +127,7 @@ export class AppHome {
       geometry: {type: 'Point', coordinates: key.split('_')}
     }))
 
-    if (this.map.getSource('tweets-source')) this.map.getSource('tweets-source').setData(this.geojson)
+    if (this.map.getSource('tweets')) this.map.getSource('tweets').setData(this.geojson)
   }
 
   updateLocations(batch: any[]) {
@@ -219,7 +151,7 @@ export class AppHome {
     console.log(this.geojson.features.length)
 
 
-    if (this.map.getSource('tweets-source')) this.map.getSource('tweets-source').setData(this.geojson)
+    if (this.map.getSource('tweets')) this.map.getSource('tweets').setData(this.geojson)
   }
 
   // handleTweetEvent(element) {
@@ -242,10 +174,17 @@ export class AppHome {
   render() {
     return (
       <div class='app-home'>
+        {this.isConnected ? (
+          <div class="live">
+            <div class="live__ring"/>
+            <div class="live__circle"/>
+          </div>
+        ) : <div/>}
         <div class="tw__timeline">
           <div class="tw__title">
             <i class="fab fa-twitter"/>
-            <span>{this.numLocations}</span></div>
+            <span>{this.numLocations}</span>
+          </div>
         </div>
         <div ref={(el) => this.mapElement = el} id="map"/>
       </div>
