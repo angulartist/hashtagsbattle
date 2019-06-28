@@ -2,7 +2,7 @@ import {Component, h, State} from '@stencil/core'
 import io from 'socket.io-client'
 import mapboxgl from 'mapbox-gl'
 
-import {LOCAL} from '../../conf'
+import {SOCKET_ENDPOINT} from '../../conf'
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoiam9obmRvZTY5IiwiYSI6ImNqeDhwYnp5bDBsbmUzb290dDY2Ynd6dWwifQ.I9CRLsBtq8B1I-RyqGms4A'
 
@@ -161,7 +161,7 @@ export class AppHome {
   }
 
   establishSocket() {
-    this.socket = io(LOCAL)
+    this.socket = io(SOCKET_ENDPOINT)
   }
 
   monitorEvents() {

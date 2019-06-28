@@ -36,11 +36,12 @@ def run(argv=None):
     google_cloud_options.project = PROJECT_ID
     google_cloud_options.staging_location = STAGING_LOCATION
     google_cloud_options.temp_location = TEMP_LOCATION
-    # google_cloud_options.job_name = 'hashtags-battle-final'
+    google_cloud_options.flexrs_goal = 'COST_OPTIMIZED'
+    # google_cloud_options.job_name = 'hashtags-battle-job'
 
     """
     -> Uncomment this to run the pipeline on the Cloud Dataflow runner.
-    $ python beam_dataflow/main.py --setup_file beam_dataflow/setup.py
+    $ python main.py --setup_file ./setup.py --machine_type=n1-standard-2 --max_num_workers=2 --disk_size_gb=30
     """
     # options.view_as(StandardOptions).runner = 'DataflowRunner'
 

@@ -4,14 +4,18 @@ const http = require('http').Server(app)
 const io = require('socket.io')(http)
 const NodeCache = require('node-cache')
 
-const ttl = 60 * 60 // cache for 1 Hour
+const LOCATION_KEY = 'locations'
+const BATCH_KEY = 'batch'
+const MAX_LOCATIONS = 100000
+const MAX_BATCH_SIZE = 20
 
 const cache = new NodeCache({
-    stdTTL: ttl,
-    checkperiod: ttl * 0.2,
     useClones: false
 })
 
+/**
+ * SOCKET IO
+ */
 io.on('connection', socket => {
     io.emit('connected')
 
@@ -28,6 +32,9 @@ app.get('/', (req, res) => {
     res.sendFile(`${__dirname}/tpl/index.html`)
 })
 
+/**
+ * PUB/SUB PUSH ENDPOINT
+ */
 app.post('/push', (req, res) => {
 
     if (!req.body) {
@@ -51,6 +58,7 @@ app.post('/push', (req, res) => {
 
     putLocation({id, lat, lng})
 
+    // ACK the message
     res.status(204).send()
 })
 
@@ -60,7 +68,6 @@ app.post('/push', (req, res) => {
 // const pubsub = new PubSub()
 // const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
 // const subscription = pubsub.subscription(subscriptionName)
-//
 //
 // const messageHandler = message => {
 //     message.ack()
@@ -75,29 +82,50 @@ app.post('/push', (req, res) => {
 // subscription.on(`message`, messageHandler)
 
 
-cache.set('locations', [])
+function initCache() {
+    cache.set('locations', [])
+    cache.set('batch', [])
+
+    cache.on('set', function (key, data) {
+        if (key !== LOCATION_KEY) return
+
+        io.emit(LOCATION_KEY, data)
+
+        console.info('emitted', data.length, 'items')
+    })
+
+    console.info('Initialized cache!!!')
+}
 
 function putLocation(location) {
-    io.emit('location', location)
+    let batch = cache.get(BATCH_KEY)
 
-    let locations = cache.get('locations')
+    if (batch.length >= MAX_BATCH_SIZE) {
+        let locations = cache.get(LOCATION_KEY)
 
-    // if (locations.length > 10000) {
-    //     locations = locations.slice(0, 9990)
-    // }
+        if (locations.length >= MAX_LOCATIONS) {
+            locations = locations.slice(0, MAX_LOCATIONS - MAX_BATCH_SIZE)
+        }
 
-    cache.set('locations', [location, ...locations])
+        cache.set(LOCATION_KEY, [...batch, ...locations])
+
+        resetBatch()
+    } else {
+        cache.set(BATCH_KEY, [location, ...batch])
+    }
 }
+
+function resetBatch() {
+    cache.set(BATCH_KEY, [])
+}
+
 
 function getLocations() {
     let locations = cache.get('locations')
 
     io.emit('locations', locations)
-
-    console.log('emited', locations.length)
 }
 
-setInterval(() => getLocations(), 10 * 1000)
-
+initCache()
 
 module.exports = http
