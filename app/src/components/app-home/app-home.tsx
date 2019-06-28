@@ -11,6 +11,8 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoiam9obmRvZTY5IiwiYSI6ImNqeDhwYnp5bDBsbmUzb290d
   styleUrl: 'app-home.css'
 })
 export class AppHome {
+  batchSize: number = 20
+  maxLocations: number = 50000
   mapElement: HTMLDivElement
   map: any
   socket: any
@@ -167,7 +169,7 @@ export class AppHome {
   monitorEvents() {
     this.socket.on('connected', () => AppHome.logger('Connection ACK'))
 
-    this.socket.on('locations', (locations: any[]) => this.updateLocations(locations))
+    this.socket.on('locations', (locations: any[]) => this.setLocations(locations))
 
     this.socket.on('batch', (batch: any[]) => this.updateLocations(batch))
 
@@ -185,13 +187,35 @@ export class AppHome {
     if (this.map.getSource('tmp-source')) this.map.getSource('tmp-source').setData(this.tmpGeojson)
   }
 
-  updateLocations(locations: any[]) {
+  setLocations(locations: any[]) {
     console.log(locations)
 
     this.geojson.features = locations.map((key: string) => ({
       type: 'Feature',
       geometry: {type: 'Point', coordinates: key.split('_')}
     }))
+
+    if (this.map.getSource('tweets-source')) this.map.getSource('tweets-source').setData(this.geojson)
+  }
+
+  updateLocations(batch: any[]) {
+    console.log(batch)
+
+    const numLocations = this.geojson.features.length
+    const sliced = this.geojson.features.slice(this.maxLocations - this.batchSize)
+
+    if (numLocations >= this.maxLocations) {
+      this.geojson.features = [...batch.map((key: string) => ({
+        type: 'Feature',
+        geometry: {type: 'Point', coordinates: key.split('_')}
+      })), ...sliced]
+    } else {
+      this.geojson.features = [...batch.map((key: string) => ({
+        type: 'Feature',
+        geometry: {type: 'Point', coordinates: key.split('_')}
+      })), ...this.geojson.features]
+    }
+
 
     if (this.map.getSource('tweets-source')) this.map.getSource('tweets-source').setData(this.geojson)
   }

@@ -83,10 +83,13 @@ function initCache() {
     cache.set('batch', [])
     // Cache events
     cache.on('set', function (key, data) {
-        if (key !== LOCATION_KEY) return
-        io.emit(LOCATION_KEY, data)
-        console.info('emitted', data.length, 'items')
-        printKiloBytes('array', JSON.stringify(data))
+        if (key !== BATCH_KEY) return
+        if (data.length >= MAX_BATCH_SIZE) {
+            io.emit('batch', batch)
+            cache.set(BATCH_KEY, [])
+            console.info('emitted', data.length, 'items')
+            printKiloBytes('array', JSON.stringify(data))
+        }
     })
     console.info('Initialized cache!!!')
 }
@@ -104,15 +107,9 @@ function putLocation(location) {
             locations = locations.slice(0, MAX_LOCATIONS - MAX_BATCH_SIZE)
         }
         cache.set(LOCATION_KEY, [...batch, ...locations])
-        emitBatch(batch)
     } else {
         cache.set(BATCH_KEY, [location, ...batch])
     }
-}
-
-function emitBatch(batch) {
-    io.emit('batch', batch)
-    cache.set(BATCH_KEY, [])
 }
 
 function getLocations() {
