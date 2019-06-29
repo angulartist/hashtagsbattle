@@ -7,6 +7,10 @@ $ git clone git@github.com:angulartist/hashtagsbattle.git
 $ cd express/server/
 ```
 
+### Cleaning
+
+- The **openapi-appengine.yaml** file is only required to secure some of your endpoints. This is optional and can be removed.
+
 ### Run locally (Classic)
 
 * Install dependencies
