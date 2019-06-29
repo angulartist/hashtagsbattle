@@ -4,11 +4,10 @@ const http = require('http').Server(app)
 const io = require('socket.io')(http)
 const NodeCache = require('node-cache')
 const Supercluster = require('supercluster')
-const faker = require('faker')
 
 const LOCATION_KEY = 'locations' // stored in memory
 const BATCH_KEY = 'batch' // stored in memory
-const MAX_LOCATIONS = 50000 // max tweets
+const MAX_LOCATIONS = 100000 // max tweets
 const MAX_BATCH_SIZE = 20 // update every X
 
 const cache = new NodeCache({
@@ -26,12 +25,11 @@ const index = new Supercluster({
 io.on('connection', socket => {
     io.emit('connected')
 
-    getLocations()
-
     socket.on('disconnect', () => {
         io.emit('disconnect')
     })
 
+    // Has user moved the map?
     socket.on('map updated', (coords) => {
         emitClusters(coords)
     })
@@ -66,69 +64,67 @@ app.post('/push', (req, res) => {
     const pubSubMessage = req.body.message
     const {coordinates} = JSON.parse(Buffer.from(pubSubMessage.data, 'base64').toString())
     const [lat, lng] = coordinates
-    putLocation(`${lat}_${lng}`)
+    putLocation({
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Point',
+            'coordinates': [lat, lng]
+        }
+    })
     res.status(204).send()
 })
 
 // # LOCAL TESTING ONLY # //
 
-const {PubSub} = require(`@google-cloud/pubsub`)
-const pubsub = new PubSub()
-const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
-const subscription = pubsub.subscription(subscriptionName)
+// const {PubSub} = require(`@google-cloud/pubsub`)
+// const pubsub = new PubSub()
+// const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
+// const subscription = pubsub.subscription(subscriptionName)
+//
+// const messageHandler = message => {
+//     const {coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
+//     const [lat, lng] = coordinates
+//
+//     putLocation({
+//         'type': 'Feature',
+//         'geometry': {
+//             'type': 'Point',
+//             'coordinates': [lat, lng]
+//         }
+//     })
+//
+//     message.ack()
+// }
+//
+// subscription.on(`message`, messageHandler)
 
-const messageHandler = message => {
-    const {coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
-
-    putLocation(`${coordinates[0]}_${coordinates[1]}`)
-
-    message.ack()
-}
-
-subscription.on(`message`, messageHandler)
-
-
+// Builds clusters from locations and emits them
 function emitClusters([bbox, zoom]) {
     const locations = cache.get(LOCATION_KEY)
-
-    const features = locations.map(location => {
-        const [lat, lng] = location.split('_')
-
-        return {
-            'type': 'Feature',
-            'geometry': {
-                'type': 'Point',
-                'coordinates': [lat, lng]
-            }
-        }
-    })
-
-    index.load(features)
+    index.load(locations)
     const clusters = index.getClusters(bbox, Math.floor(zoom))
     io.emit('clusters', clusters)
+
+    console.info('emitted', clusters.length)
 }
 
+// Init in-memory cache
 function initCache() {
     // Cache keys
     cache.set('locations', [])
     cache.set('batch', [])
     // Cache events
-    // cache.on('set', (key, batch) => {
-    //     if (key !== BATCH_KEY) return
-    //
-    //     if (batch.length >= MAX_BATCH_SIZE) {
-    //         io.emit('batch', batch)
-    //         console.info('emitted', batch.length, 'items')
-    //     }
-    // })
+    cache.on('set', (key, batch) => {
+        if (key !== BATCH_KEY) return
+
+        if (batch.length >= MAX_BATCH_SIZE) {
+            io.emit('ask for coords')
+        }
+    })
     console.info('Initialized cache!!!')
 }
 
-
-function printKiloBytes(tag, str) {
-    console.log(tag, Buffer.byteLength(str, 'utf8') / 1024, str.length)
-}
-
+// Add a new location
 function putLocation(location) {
     const batch = cache.get(BATCH_KEY)
     if (batch.length >= MAX_BATCH_SIZE) {
@@ -143,9 +139,9 @@ function putLocation(location) {
     }
 }
 
-function getLocations() {
-    const locations = cache.get('locations')
-    io.emit('locations', locations)
+// Helper
+function printKiloBytes(tag, str) {
+    console.log(tag, Buffer.byteLength(str, 'utf8') / 1024, str.length)
 }
 
 initCache()

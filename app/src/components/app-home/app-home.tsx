@@ -20,13 +20,18 @@ export class AppHome {
     'type': 'FeatureCollection',
     'features': []
   }
+  clustersGeo: any[] = [[], 0]
 
   @State() numLocations: number = 0
   @State() isConnected: boolean = false
 
-  handleClustering(bbox: any[], zoom: number) {
-    if (!bbox || !zoom) throw new Error('bbox and zoom are mandatory!')
+  handleClustering() {
+    if (!this.clustersGeo.length) throw new Error('No geo for retrieving clusters!')
 
+    const [bbox, zoom] = this.clustersGeo
+
+    if (!bbox || !zoom) throw new Error('bbox and zoom are mandatory!')
+    if (!this.socket) throw new Error('socket hasnt been initialized yet!')
     this.socket.emit('map updated', ([bbox, zoom]))
   }
 
@@ -46,14 +51,19 @@ export class AppHome {
       hash: true
     })
 
-    map.on('moveend', () => {
+    const prepareCluster = () => {
       const bounds = map.getBounds()
       const {_ne, _sw} = bounds
       const bbox = [_sw.lng, _sw.lat, _ne.lng, _ne.lat]
-      this.handleClustering(bbox, map.getZoom())
-    })
+      this.clustersGeo = [bbox, map.getZoom()]
+      this.handleClustering()
+    }
+
+    map.on('moveend', () => prepareCluster())
 
     map.on('load', () => {
+      prepareCluster()
+
       map.loadImage('https://i.imgur.com/YVAY5dJ.png', function (error, image) {
         if (error) throw error
         map.addImage('twitter', image)
@@ -63,49 +73,50 @@ export class AppHome {
         type: 'geojson', data: this.geojson
       })
 
-      // map.addLayer({
-      //   id: 'tweets-layer',
-      //   type: 'circle',
-      //   source: 'tweets',
-      //   filter: ['has', 'point_count'],
-      //   paint: {
-      //     'circle-color': [
-      //       'step',
-      //       ['get', 'point_count'],
-      //       '#51bbd6',
-      //       100,
-      //       '#f1f075',
-      //       750,
-      //       '#f28cb1'
-      //     ],
-      //     'circle-radius': [
-      //       'step',
-      //       ['get', 'point_count'],
-      //       20,
-      //       100,
-      //       30,
-      //       750,
-      //       40
-      //     ]
-      //   }
-      // })
-      //
-      // map.addLayer({
-      //   id: 'cluster-count',
-      //   type: 'symbol',
-      //   source: 'tweets',
-      //   filter: ['has', 'point_count'],
-      //   layout: {
-      //     'text-field': '{point_count_abbreviated}',
-      //     'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-      //     'text-size': 12
-      //   }
-      // })
+      map.addLayer({
+        id: 'tweets-layer',
+        type: 'circle',
+        source: 'tweets',
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': [
+            'step',
+            ['get', 'point_count'],
+            '#51bbd6',
+            100,
+            '#f1f075',
+            750,
+            '#f28cb1'
+          ],
+          'circle-radius': [
+            'step',
+            ['get', 'point_count'],
+            20,
+            100,
+            30,
+            750,
+            40
+          ]
+        }
+      })
+
+      map.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'tweets',
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': '{point_count_abbreviated}',
+          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          'text-size': 12
+        }
+      })
 
       map.addLayer({
         id: 'unclustered-point',
         type: 'symbol',
         source: 'tweets',
+        filter: ['!', ['has', 'point_count']],
         'layout': {
           'icon-image': 'twitter',
           'icon-size': 0.25,
@@ -127,6 +138,7 @@ export class AppHome {
       this.isConnected = true
     })
     this.socket.on('clusters', (clusters: any[]) => this.setClusters(clusters))
+    this.socket.on('ask for coords', () => this.handleClustering())
   }
 
   setClusters(clusters: any[]) {
