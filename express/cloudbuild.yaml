@@ -10,7 +10,13 @@ steps:
     id: 'unit tests'
 
   - name: gcr.io/cloud-builders/gcloud
-    args: ['app', 'deploy', './server/app.flexible.yaml', '-v', '$_VID']
+    args: ['app', 'deploy', '--project', '$PROJECT_ID',
+           '-q', '$_GAE_PROMOTE',
+           './server/app.flexible.yaml', '-v', '$_VID']
     id: 'deploy app engine'
+
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args: ['app', 'services', '--project', '$PROJECT_ID',
+           'set-traffic', '--splits', '$_GAE_TRAFFIC']
 
 timeout: 660s
