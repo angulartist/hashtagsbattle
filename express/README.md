@@ -51,7 +51,7 @@ $ docker run -p 8080:8080 xxxxxxxxxxxxx
 
 > App should be running on 127.0.0.1:8080
 
-### Deploy on Google App Engine
+### Deploy on Google App Engine (manually)
 
 - Make sure you have set up your Google Cloud Project and have enabled billing and related APIs
 
@@ -71,7 +71,7 @@ Follow the [Grant App Engine access to the Cloud Build service account part](htt
 - Navigate to **express/** folder and run the CI/CD pipeline
 
 ```sh
-$ sudo gcloud builds submit . --config=cloudbuild.yaml --substitutions=_VID=version-1
+$ sudo gcloud builds submit . --config=cloudbuild.yaml --substitutions=_VID=prod,_GAE_PROMOTE=--promote,_GAE_TRAFFIC=prod=1
 ```
 
 > _VID could be any version name...
