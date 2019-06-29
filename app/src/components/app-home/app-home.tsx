@@ -24,6 +24,12 @@ export class AppHome {
   @State() numLocations: number = 0
   @State() isConnected: boolean = false
 
+  handleClustering(bbox: any[], zoom: number) {
+    if (!bbox || !zoom) throw new Error('bbox and zoom are mandatory!')
+
+    this.socket.emit('map updated', ([bbox, zoom]))
+  }
+
   componentWillLoad() {
     this.establishSocket()
     this.monitorEvents()
@@ -36,7 +42,15 @@ export class AppHome {
       container: this.mapElement,
       style: 'mapbox://styles/mapbox/light-v9',
       center: [-5, 10],
-      zoom: 2
+      zoom: 2,
+      hash: true
+    })
+
+    map.on('moveend', () => {
+      const bounds = map.getBounds()
+      const {_ne, _sw} = bounds
+      const bbox = [_sw.lng, _sw.lat, _ne.lng, _ne.lat]
+      this.handleClustering(bbox, map.getZoom())
     })
 
     map.on('load', () => {
@@ -46,55 +60,52 @@ export class AppHome {
       })
 
       map.addSource('tweets', {
-        type: 'geojson', data: this.geojson, cluster: true,
-        clusterMaxZoom: 14,
-        clusterRadius: 70
+        type: 'geojson', data: this.geojson
       })
 
-      map.addLayer({
-        id: 'tweets-layer',
-        type: 'circle',
-        source: 'tweets',
-        filter: ['has', 'point_count'],
-        paint: {
-          'circle-color': [
-            'step',
-            ['get', 'point_count'],
-            '#51bbd6',
-            100,
-            '#f1f075',
-            750,
-            '#f28cb1'
-          ],
-          'circle-radius': [
-            'step',
-            ['get', 'point_count'],
-            20,
-            100,
-            30,
-            750,
-            40
-          ]
-        }
-      })
-
-      map.addLayer({
-        id: 'cluster-count',
-        type: 'symbol',
-        source: 'tweets',
-        filter: ['has', 'point_count'],
-        layout: {
-          'text-field': '{point_count_abbreviated}',
-          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-          'text-size': 12
-        }
-      })
+      // map.addLayer({
+      //   id: 'tweets-layer',
+      //   type: 'circle',
+      //   source: 'tweets',
+      //   filter: ['has', 'point_count'],
+      //   paint: {
+      //     'circle-color': [
+      //       'step',
+      //       ['get', 'point_count'],
+      //       '#51bbd6',
+      //       100,
+      //       '#f1f075',
+      //       750,
+      //       '#f28cb1'
+      //     ],
+      //     'circle-radius': [
+      //       'step',
+      //       ['get', 'point_count'],
+      //       20,
+      //       100,
+      //       30,
+      //       750,
+      //       40
+      //     ]
+      //   }
+      // })
+      //
+      // map.addLayer({
+      //   id: 'cluster-count',
+      //   type: 'symbol',
+      //   source: 'tweets',
+      //   filter: ['has', 'point_count'],
+      //   layout: {
+      //     'text-field': '{point_count_abbreviated}',
+      //     'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+      //     'text-size': 12
+      //   }
+      // })
 
       map.addLayer({
         id: 'unclustered-point',
         type: 'symbol',
         source: 'tweets',
-        filter: ['!', ['has', 'point_count']],
         'layout': {
           'icon-image': 'twitter',
           'icon-size': 0.25,
@@ -115,17 +126,13 @@ export class AppHome {
       AppHome.logger('Connection ACK!')
       this.isConnected = true
     })
-    this.socket.on('locations', (locations: any[]) => this.setLocations(locations))
-    this.socket.on('batch', (batch: any[]) => this.updateLocations(batch))
+    this.socket.on('clusters', (clusters: any[]) => this.setClusters(clusters))
   }
 
-  setLocations(locations: any[]) {
-    console.log(locations)
+  setClusters(clusters: any[]) {
+    console.log(clusters)
 
-    this.geojson.features = locations.map((key: string) => ({
-      type: 'Feature',
-      geometry: {type: 'Point', coordinates: key.split('_')}
-    }))
+    this.geojson.features = clusters
 
     if (this.map.getSource('tweets')) this.map.getSource('tweets').setData(this.geojson)
   }

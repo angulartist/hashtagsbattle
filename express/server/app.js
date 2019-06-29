@@ -31,6 +31,10 @@ io.on('connection', socket => {
     socket.on('disconnect', () => {
         io.emit('disconnect')
     })
+
+    socket.on('map updated', (coords) => {
+        emitClusters(coords)
+    })
 })
 
 app.use(bodyParser.json())
@@ -68,59 +72,56 @@ app.post('/push', (req, res) => {
 
 // # LOCAL TESTING ONLY # //
 
-// const {PubSub} = require(`@google-cloud/pubsub`)
-// const pubsub = new PubSub()
-// const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
-// const subscription = pubsub.subscription(subscriptionName)
-//
-// const messageHandler = message => {
-//     const {coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
-//
-//     putLocation(`${coordinates[0]}_${coordinates[1]}`)
-//
-//     message.ack()
-// }
-//
-// subscription.on(`message`, messageHandler)
+const {PubSub} = require(`@google-cloud/pubsub`)
+const pubsub = new PubSub()
+const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
+const subscription = pubsub.subscription(subscriptionName)
 
+const messageHandler = message => {
+    const {coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
+
+    putLocation(`${coordinates[0]}_${coordinates[1]}`)
+
+    message.ack()
+}
+
+subscription.on(`message`, messageHandler)
+
+
+function emitClusters([bbox, zoom]) {
+    const locations = cache.get(LOCATION_KEY)
+
+    const features = locations.map(location => {
+        const [lat, lng] = location.split('_')
+
+        return {
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Point',
+                'coordinates': [lat, lng]
+            }
+        }
+    })
+
+    index.load(features)
+    const clusters = index.getClusters(bbox, Math.floor(zoom))
+    io.emit('clusters', clusters)
+}
 
 function initCache() {
     // Cache keys
     cache.set('locations', [])
     cache.set('batch', [])
     // Cache events
-    cache.on('set', (key, batch) => {
-        if (key !== BATCH_KEY) return
-
-        if (batch.length >= MAX_BATCH_SIZE) {
-            io.emit('batch', batch)
-            console.info('emitted', batch.length, 'items')
-        }
-    })
+    // cache.on('set', (key, batch) => {
+    //     if (key !== BATCH_KEY) return
+    //
+    //     if (batch.length >= MAX_BATCH_SIZE) {
+    //         io.emit('batch', batch)
+    //         console.info('emitted', batch.length, 'items')
+    //     }
+    // })
     console.info('Initialized cache!!!')
-
-    let i = 0
-    let features = []
-
-    while (i <= 10000) {
-        const feature =
-            {
-                'type': 'Feature',
-                'geometry': {
-                    'type': 'Point',
-                    'coordinates': [faker.address.latitude(), faker.address.longitude()]
-                }
-            }
-        features = [feature, ...features]
-        i++
-        console.log(i)
-    }
-
-    index.load(features)
-
-    const clusters = index.getClusters([-180, -85, 180, 85], 2)
-
-    console.log(clusters)
 }
 
 
