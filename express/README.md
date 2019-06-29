@@ -1,3 +1,7 @@
+# Node: Express + SocketIO service running on GAE
+
+This service contains my **push subscription** which will receive Cloud Pub/Sub messages and do some computation on them before emitting values to the client through SocketIO.
+
 ### Installation
 
 * Clone the repo and navigate to the **express/server/** folder
