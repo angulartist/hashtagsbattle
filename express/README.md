@@ -74,4 +74,4 @@ $ sudo gcloud builds submit . --config=cloudbuild.yaml --substitutions=_VID=vers
 
 - Create a new trigger and specify the **Cloud build** configuration
 
-![Trigger](blob:https://imgur.com/1291c080-efa9-4092-a7a1-1310e71c8245)
+![Trigger](https://i.imgur.com/EMkUtoR.png)
