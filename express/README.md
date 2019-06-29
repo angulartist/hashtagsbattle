@@ -87,14 +87,19 @@ When you commit something on staging, this gonna run the CI/CD pipeline and depl
 
 > Note: If you have any substitution variables such as _VID, add them.
 
-[PROD trigger configuration 1](https://i.imgur.com/t0giFvP.png)
-[PROD trigger configuration 2](https://i.imgur.com/Zkg9niX.png)
+* [PROD trigger configuration 1](https://i.imgur.com/t0giFvP.png)
+* [PROD trigger configuration 2](https://i.imgur.com/Zkg9niX.png)
 
 - Create a new PROD trigger and specify the **Cloud build** configuration
 
 > Note: If you have any substitution variables such as _VID, add them.
 
-[STAGING trigger configuration 1](https://i.imgur.com/yak6Osw.png)
-[STAGING trigger configuration 2](https://i.imgur.com/CLuEBxE.png)
+* [STAGING trigger configuration 1](https://i.imgur.com/yak6Osw.png)
+* [STAGING trigger configuration 2](https://i.imgur.com/CLuEBxE.png)
+
+You should end up with something like that:
+
+* [TRIGGERS](https://i.imgur.com/dtFGy1S.png)
+
 
 ## Push some modifications, it's automagic! :fire:
