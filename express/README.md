@@ -97,9 +97,5 @@ When you commit something on staging, this gonna run the CI/CD pipeline and depl
 * [STAGING trigger configuration p1](https://i.imgur.com/yak6Osw.png)
 * [STAGING trigger configuration p2](https://i.imgur.com/CLuEBxE.png)
 
-You should end up with something like that:
-
-* [TRIGGERS](https://i.imgur.com/dtFGy1S.png)
-
 
 ## Push some modifications, it's automagic! :fire:
