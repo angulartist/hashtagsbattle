@@ -18,9 +18,9 @@ steps:
     args: ['install']
     id: 'npm install'
 
-  #  - name: gcr.io/cloud-builders/npm
-  #    args: ['run', 'test']
-  #    id: 'unit tests'
+#    - name: gcr.io/cloud-builders/npm
+#      args: ['run', 'test']
+#      id: 'unit tests'
 
   - name: gcr.io/cloud-builders/npm
     args: ['run', 'build']
