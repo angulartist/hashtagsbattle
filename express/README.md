@@ -2,7 +2,18 @@
 
 This service contains my **push subscription** which will receive Cloud Pub/Sub messages and do some computation on them before emitting values to the client through SocketIO.
 
-### Installation
+## Table of Contents
+
+* [Installation](#installation)
+* [Cleaning](#cleaning)
+* [Run the project](#run-the-project)
+  * [Run locally (Classic)](#run-locally-classic)
+  * [Run locally (Docker)](#run-locally-docker)
+* [Deploy the project](#deploy-the-project)
+  * [Deploy on Google App Engine (manually)](#deploy-on-google-app-engine-manually)
+  * [Automating builds using build triggers (multiple environments)](#automating-builds-using-build-triggers-multiple-environments)
+
+## Installation
 
 * Clone the repo and navigate to the **express/server/** folder
 
@@ -11,9 +22,12 @@ $ git clone git@github.com:angulartist/hashtagsbattle.git
 $ cd express/server/
 ```
 
-### Cleaning
+## Cleaning
 
 - The **openapi-appengine.yaml** file is only required to secure some of your endpoints. This is optional and can be removed.
+
+
+## Run the project
 
 ### Run locally (Classic)
 
@@ -50,6 +64,8 @@ $ docker run -p 8080:8080 xxxxxxxxxxxxx
 > Note: xxxxxxxxxxxxx should be your Docker container id
 
 > App should be running on 127.0.0.1:8080
+
+## Deploy the project
 
 ### Deploy on Google App Engine (manually)
 
@@ -90,7 +106,7 @@ When you commit something on staging, this gonna run the CI/CD pipeline and depl
 * [PROD trigger configuration p1](https://i.imgur.com/t0giFvP.png)
 * [PROD trigger configuration p2](https://i.imgur.com/Zkg9niX.png)
 
-- Create a new PROD trigger and specify the **Cloud build** configuration
+- Create a new STAGING trigger and specify the **Cloud build** configuration
 
 > Note: If you have any substitution variables such as _VID, add them.
 
@@ -98,4 +114,4 @@ When you commit something on staging, this gonna run the CI/CD pipeline and depl
 * [STAGING trigger configuration p2](https://i.imgur.com/CLuEBxE.png)
 
 
-## Push some modifications, it's automagic! :fire:
+### Push some modifications, it's automagic! :fire:
