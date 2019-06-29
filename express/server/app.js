@@ -99,7 +99,7 @@ function printKiloBytes(tag, str) {
 }
 
 function putLocation(location) {
-    let batch = cache.get(BATCH_KEY)
+    const batch = cache.get(BATCH_KEY)
     if (batch.length >= MAX_BATCH_SIZE) {
         let locations = cache.get(LOCATION_KEY)
         if (locations.length >= MAX_LOCATIONS) {
@@ -113,7 +113,7 @@ function putLocation(location) {
 }
 
 function getLocations() {
-    let locations = cache.get('locations')
+    const locations = cache.get('locations')
     io.emit('locations', locations)
 }
 
