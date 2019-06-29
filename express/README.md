@@ -80,10 +80,21 @@ $ sudo gcloud builds submit . --config=cloudbuild.yaml --substitutions=_VID=vers
 
 ### Automating builds using build triggers
 
-- Create a new trigger and specify the **Cloud build** configuration
+Here is an example of how to setup auto builds with Cloud Build triggers. I'm using githut as a source and I've added two triggers : one to deploy features pushed on a **staging** branch and another one to deploy features merged into **master**.
+When you commit something on staging, this gonna run the CI/CD pipeline and deploy a staging version of your service where the traffic is only 20% (for testing purposes). And when you merge features from staging to master, this gonna run the pipeline and deploy a prod version of your service with 100% of the traffic.
+
+- Create a new PROD trigger and specify the **Cloud build** configuration
 
 > Note: If you have any substitution variables such as _VID, add them.
 
-![Trigger](https://i.imgur.com/MO4nR2R.png)
+[PROD trigger configuration 1](https://i.imgur.com/t0giFvP.png)
+[PROD trigger configuration 2](https://i.imgur.com/Zkg9niX.png)
 
-- Push some modifications, it's automagic! :fire:
+- Create a new PROD trigger and specify the **Cloud build** configuration
+
+> Note: If you have any substitution variables such as _VID, add them.
+
+[STAGING trigger configuration 1](https://i.imgur.com/yak6Osw.png)
+[STAGING trigger configuration 2](https://i.imgur.com/CLuEBxE.png)
+
+## Push some modifications, it's automagic! :fire:
