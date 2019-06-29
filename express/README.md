@@ -74,7 +74,7 @@ Follow the [Grant App Engine access to the Cloud Build service account part](htt
 $ sudo gcloud builds submit . --config=cloudbuild.yaml --substitutions=_VID=prod,_GAE_PROMOTE=--promote,_GAE_TRAFFIC=prod=1
 ```
 
-> _VID could be any version name...
+Read more about [Cloud Build flags](https://cloud.google.com/appengine/docs/flexible/nodejs/testing-and-deploying-your-app)
 
 > The **express-socketio** service should be created on App Engine
 
