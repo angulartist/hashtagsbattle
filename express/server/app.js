@@ -3,6 +3,8 @@ const app = require('express')()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 const NodeCache = require('node-cache')
+const Supercluster = require('supercluster')
+const faker = require('faker')
 
 const LOCATION_KEY = 'locations' // stored in memory
 const BATCH_KEY = 'batch' // stored in memory
@@ -11,6 +13,11 @@ const MAX_BATCH_SIZE = 20 // update every X
 
 const cache = new NodeCache({
     useClones: false
+})
+
+const index = new Supercluster({
+    radius: 40,
+    maxZoom: 16
 })
 
 /**
@@ -91,6 +98,29 @@ function initCache() {
         }
     })
     console.info('Initialized cache!!!')
+
+    let i = 0
+    let features = []
+
+    while (i <= 10000) {
+        const feature =
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [faker.address.latitude(), faker.address.longitude()]
+                }
+            }
+        features = [feature, ...features]
+        i++
+        console.log(i)
+    }
+
+    index.load(features)
+
+    const clusters = index.getClusters([-180, -85, 180, 85], 2)
+
+    console.log(clusters)
 }
 
 
