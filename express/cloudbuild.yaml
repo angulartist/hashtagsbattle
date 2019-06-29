@@ -1,12 +1,12 @@
 steps:
   - name: gcr.io/cloud-builders/npm
     args: ['install']
-    dir: 'server'
+    dir: 'hashtagsbattle/server'
     id: 'install packages'
 
   - name: gcr.io/cloud-builders/npm
     args: ['run', 'test']
-    dir: 'server'
+    dir: 'hashtagsbattle/server'
     id: 'unit tests'
 
   - name: gcr.io/cloud-builders/gcloud
