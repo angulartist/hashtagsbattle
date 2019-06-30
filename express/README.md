@@ -106,19 +106,15 @@ Here is an example of how to setup auto builds with Cloud Build triggers. I'm us
 * When you commit something on staging, this gonna run the CI/CD pipeline and deploy a staging version of your service where the traffic is only 20% (for testing purposes).
 * And when you merge features from staging to master, this gonna run the pipeline and deploy a prod version of your service with 100% of the traffic.
 
-- Create a new PROD trigger and specify the **Cloud build** configuration
-
-> Note: If you have any substitution variables such as _VID, add them.
+#### Create a new PROD trigger and specify the **Cloud build** configuration
 
 * [PROD trigger configuration p1](https://i.imgur.com/t0giFvP.png)
 * [PROD trigger configuration p2](https://i.imgur.com/Zkg9niX.png)
 
-- Create a new STAGING trigger and specify the **Cloud build** configuration
-
-> Note: If you have any substitution variables such as _VID, add them.
+#### Create a new PROD trigger and specify the **Cloud build** configuration
 
 * [STAGING trigger configuration p1](https://i.imgur.com/yak6Osw.png)
 * [STAGING trigger configuration p2](https://i.imgur.com/CLuEBxE.png)
 
 
-### Push some modifications, it's automagic! :fire:
+#### Push some modifications, it's automagic! :fire:
