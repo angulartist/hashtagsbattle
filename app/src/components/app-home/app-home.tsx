@@ -41,9 +41,11 @@ export class AppHome {
 
     const map: any = new mapboxgl.Map({
       container: this.mapElement,
-      style: 'mapbox://styles/mapbox/light-v9',
+      style: 'mapbox://styles/mapbox/light-v9?optimize=true',
       center: [-5, 10],
       zoom: 2,
+      minZoom: 2,
+      maxZoom: 8,
       hash: true
     })
 

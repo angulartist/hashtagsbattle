@@ -3,21 +3,15 @@ const app = require('express')()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 const NodeCache = require('node-cache')
-const Supercluster = require('supercluster')
+const clusterify = require('supercluster')
 
 const LOCATION_KEY = 'locations' // stored in memory
 const BATCH_KEY = 'batch' // stored in memory
-const MAX_LOCATIONS = 100000 // max tweets
-const MAX_BATCH_SIZE = 50 // update every X
+const MAX_LOCATIONS = 500000 // max tweets
+const MAX_BATCH_SIZE = 25 // update every X
 
 const cache = new NodeCache({
     useClones: false
-})
-
-const index = new Supercluster({
-    radius: 80,
-    maxZoom: 8,
-    log: true
 })
 
 /**
@@ -105,10 +99,18 @@ function emitLocation(location) {
 //
 // subscription.on(`message`, messageHandler)
 
-
 // Builds clusters from locations and emits them
 function emitClusters([bbox, zoom]) {
     const locations = cache.get(LOCATION_KEY)
+
+    // Compute only the current user zoom
+    const index = new clusterify({
+        radius: 120,
+        maxZoom: Math.floor(zoom),
+        minZoom: Math.floor(zoom),
+        log: true
+    })
+
     index.load(locations)
     const clusters = index.getClusters(bbox, Math.floor(zoom))
     io.emit('clusters', clusters)
