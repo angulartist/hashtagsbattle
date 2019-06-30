@@ -19,12 +19,15 @@
   },
   "devDependencies": {
     "@google-cloud/nodejs-repo-tools": "^3.1.0",
+    "@turf/random": "^4.5.2",
     "ava": "^1.2.1",
     "faker": "^4.1.0",
     "jest": "^24.8.0",
     "moxios": "^0.4.0",
     "sinon": "^7.2.3",
     "supertest": "^4.0.2",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "vt-pbf": "^3.1.1",
+    "xmlhttprequest": "^1.8.0"
   }
 }

@@ -11,8 +11,6 @@ mapboxgl.accessToken = 'pk.eyJ1Ijoiam9obmRvZTY5IiwiYSI6ImNqeDhwYnp5bDBsbmUzb290d
   styleUrl: 'app-home.css'
 })
 export class AppHome {
-  batchSize: number = 20
-  maxLocations: number = 50000
   mapElement: HTMLDivElement
   map: any
   socket: any
@@ -22,16 +20,13 @@ export class AppHome {
   }
   clustersGeo: any[] = [[], 0]
 
-  @State() numLocations: number = 0
   @State() isConnected: boolean = false
+  @State() sizeLocations: number = 0
 
   handleClustering() {
-    if (!this.clustersGeo.length) throw new Error('No geo for retrieving clusters!')
-
-    const [bbox, zoom] = this.clustersGeo
-
-    if (!bbox || !zoom) throw new Error('bbox and zoom are mandatory!')
     if (!this.socket) throw new Error('socket hasnt been initialized yet!')
+    if (!this.clustersGeo.length) throw new Error('No geo for retrieving clusters!')
+    const [bbox, zoom] = this.clustersGeo
     this.socket.emit('map updated', ([bbox, zoom]))
   }
 
@@ -43,6 +38,7 @@ export class AppHome {
   componentDidLoad() {
     if (this.map) return false
 
+
     const map: any = new mapboxgl.Map({
       container: this.mapElement,
       style: 'mapbox://styles/mapbox/light-v9',
@@ -53,8 +49,12 @@ export class AppHome {
 
     const prepareCluster = () => {
       const bounds = map.getBounds()
-      const {_ne, _sw} = bounds
-      const bbox = [_sw.lng, _sw.lat, _ne.lng, _ne.lat]
+      const bbox = [
+        bounds._sw.lng,
+        bounds._sw.lat,
+        bounds._ne.lng,
+        bounds._ne.lat
+      ]
       this.clustersGeo = [bbox, map.getZoom()]
       this.handleClustering()
     }
@@ -137,8 +137,18 @@ export class AppHome {
       AppHome.logger('Connection ACK!')
       this.isConnected = true
     })
-    this.socket.on('clusters', (clusters: any[]) => this.setClusters(clusters))
+    this.socket.on('clusters', (clusters: any[]) => {
+      this.setClusters(clusters)
+      this.computeSizeLocations(clusters)
+    })
     this.socket.on('ask for coords', () => this.handleClustering())
+  }
+
+  computeSizeLocations(clusters: any[]) {
+    this.sizeLocations = clusters
+      .filter(c => c.properties)
+      .reduce((acc: number, cluster: any) =>
+        acc + cluster.properties.point_count, 0)
   }
 
   setClusters(clusters: any[]) {
@@ -148,43 +158,6 @@ export class AppHome {
 
     if (this.map.getSource('tweets')) this.map.getSource('tweets').setData(this.geojson)
   }
-
-  updateLocations(batch: any[]) {
-    console.log(batch)
-
-    const numLocations = this.geojson.features.length
-    const sliced = this.geojson.features.slice(this.maxLocations - this.batchSize)
-
-    if (numLocations >= this.maxLocations) {
-      this.geojson.features = [...batch.map((key: string) => ({
-        type: 'Feature',
-        geometry: {type: 'Point', coordinates: key.split('_')}
-      })), ...sliced]
-    } else {
-      this.geojson.features = [...batch.map((key: string) => ({
-        type: 'Feature',
-        geometry: {type: 'Point', coordinates: key.split('_')}
-      })), ...this.geojson.features]
-    }
-
-    console.log(this.geojson.features.length)
-
-
-    if (this.map.getSource('tweets')) this.map.getSource('tweets').setData(this.geojson)
-  }
-
-  // handleTweetEvent(element) {
-  //   this.processedTweets++
-  //
-  //   const point = {
-  //     type: 'Feature',
-  //     geometry: element.location
-  //   }
-  //
-  //   this.geojson.features.push(point)
-  //
-  //   if (this.map.getSource('tweets-source')) this.map.getSource('tweets-source').setData(this.geojson)
-  // }
 
   static logger(smth) {
     console.log(smth)
@@ -201,8 +174,12 @@ export class AppHome {
         ) : <div/>}
         <div class="tw__timeline">
           <div class="tw__title">
-            <i class="fab fa-twitter"/>
-            <span>{this.numLocations}</span>
+            <div>
+              <span>{this.sizeLocations}</span>
+            </div>
+          </div>
+          <div class="tw__sub">
+            Tweet locations shown
           </div>
         </div>
         <div ref={(el) => this.mapElement = el} id="map"/>
