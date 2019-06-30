@@ -1,9 +1,8 @@
 # Node: Express + SocketIO service running on GAE
 
-This service contains my **push subscription** which will receive Cloud Pub/Sub messages and do some computation on them before emitting values to the client through SocketIO.
-
 ## Table of Contents
 
+* [About the project](#about-the-project)
 * [Installation](#installation)
 * [Cleaning](#cleaning)
 * [Run the project](#run-the-project)
@@ -12,7 +11,11 @@ This service contains my **push subscription** which will receive Cloud Pub/Sub 
 * [Deploy the project](#deploy-the-project)
   * [Deploy on Google App Engine (manually)](#deploy-on-google-app-engine-manually)
   * [Automating builds using build triggers (multiple environments)](#automating-builds-using-build-triggers-multiple-environments)
+  
+## About the project
 
+This service contains my **push subscription** which will receive Cloud Pub/Sub messages and do some computation on them before emitting values to the client through SocketIO. It's using a [very fast geospatial point custering library](https://blog.mapbox.com/clustering-millions-of-points-on-a-map-with-supercluster-272046ec5c97) to do server-side clustering in aim to improve networking and client-side rendering.
+ 
 ## Installation
 
 * Clone the repo and navigate to the **express/server/** folder
