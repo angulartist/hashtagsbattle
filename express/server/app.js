@@ -65,15 +65,21 @@ app.post('/push', (req, res) => {
     const pubSubMessage = req.body.message
     const {coordinates} = JSON.parse(Buffer.from(pubSubMessage.data, 'base64').toString())
     const [lat, lng] = coordinates
-    putLocation({
+    const location = {
         'type': 'Feature',
         'geometry': {
             'type': 'Point',
             'coordinates': [lat, lng]
         }
-    })
+    }
+    putLocation(location)
+    emitLocation(location)
     res.status(204).send()
 })
+
+function emitLocation(location) {
+    io.emit('dot', location)
+}
 
 // # LOCAL TESTING ONLY # //
 
@@ -85,15 +91,15 @@ app.post('/push', (req, res) => {
 // const messageHandler = message => {
 //     const {coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
 //     const [lat, lng] = coordinates
-//
-//     putLocation({
+//     const location = {
 //         'type': 'Feature',
 //         'geometry': {
 //             'type': 'Point',
 //             'coordinates': [lat, lng]
 //         }
-//     })
-//
+//     }
+//     putLocation(location)
+//     emitLocation(location)
 //     message.ack()
 // }
 //

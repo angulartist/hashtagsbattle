@@ -109,3 +109,31 @@
     opacity: 0.0;
   }
 }
+
+.marker {
+  width: 0;
+  height: 0;
+}
+
+.marker div {
+  height: 7px;
+  width: 7px;
+  border-radius: 50%;
+  background-color: #ff0000;
+  animation: pulse 1s 1;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0;
+    box-shadow: 0 0 rgba(255, 0, 0, 0.5);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 0 15px rgba(255, 0, 0, 0);
+  }
+  100% {
+    opacity: 0;
+    box-shadow: 0 0 0 15px rgba(255, 0, 0, 0);
+  }
+}

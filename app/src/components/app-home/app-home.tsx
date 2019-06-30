@@ -142,6 +142,20 @@ export class AppHome {
       this.computeSizeLocations(clusters)
     })
     this.socket.on('ask for coords', () => this.handleClustering())
+    this.socket.on('dot', (location: any) => this.setDot(location))
+  }
+
+  setDot(location: any) {
+    const el = document.createElement('div')
+    el.className = 'marker'
+    el.innerHTML = `<div></div>`
+    el.addEventListener('webkitAnimationEnd', () => {
+      el.remove()
+    }, false)
+
+    new mapboxgl.Marker(el)
+      .setLngLat(location.geometry.coordinates)
+      .addTo(this.map)
   }
 
   computeSizeLocations(clusters: any[]) {
