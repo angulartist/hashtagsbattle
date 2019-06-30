@@ -14,7 +14,9 @@
   
 ## About the project
 
-This service contains my **push subscription** which will receive Cloud Pub/Sub messages and do some computation on them before emitting values to the client through SocketIO. It's using a [very fast geospatial point custering library](https://blog.mapbox.com/clustering-millions-of-points-on-a-map-with-supercluster-272046ec5c97) to do server-side clustering in aim to improve networking and client-side rendering.
+This service contains my **push subscription** which will receive Cloud Pub/Sub messages. It does some computation on them before emitting values to the client through SocketIO.
+
+It's using a [very fast geospatial point custering library](https://blog.mapbox.com/clustering-millions-of-points-on-a-map-with-supercluster-272046ec5c97) to do server-side clustering in aim to improve networking and client-side rendering.
  
 ## Installation
 
@@ -100,7 +102,9 @@ Read more about [Cloud Build flags](https://cloud.google.com/appengine/docs/flex
 ### Automating builds using build triggers (multiple environments)
 
 Here is an example of how to setup auto builds with Cloud Build triggers. I'm using github as a repository source and I've added two triggers : one to deploy features pushed on a **staging** branch and another one to deploy features merged into **master**.
-When you commit something on staging, this gonna run the CI/CD pipeline and deploy a staging version of your service where the traffic is only 20% (for testing purposes). And when you merge features from staging to master, this gonna run the pipeline and deploy a prod version of your service with 100% of the traffic.
+
+* When you commit something on staging, this gonna run the CI/CD pipeline and deploy a staging version of your service where the traffic is only 20% (for testing purposes).
+* And when you merge features from staging to master, this gonna run the pipeline and deploy a prod version of your service with 100% of the traffic.
 
 - Create a new PROD trigger and specify the **Cloud build** configuration
 
