@@ -77,28 +77,28 @@ function emitLocation(location) {
 
 // # LOCAL TESTING ONLY # //
 
-const {PubSub} = require(`@google-cloud/pubsub`)
-const pubsub = new PubSub()
-const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
-const subscription = pubsub.subscription(subscriptionName)
+// const {PubSub} = require(`@google-cloud/pubsub`)
+// const pubsub = new PubSub()
+// const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
+// const subscription = pubsub.subscription(subscriptionName)
+//
+// const messageHandler = message => {
+//     const {coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
+//     const [lat, lng] = coordinates
+//     console.log(coordinates)
+//     // const location = {
+//     //     'type': 'Feature',
+//     //     'geometry': {
+//     //         'type': 'Point',
+//     //         'coordinates': [lat, lng]
+//     //     }
+//     // }
+//     // putLocation(location)
+//     // emitLocation(location)
+//     message.ack()
+// }
 
-const messageHandler = message => {
-    const {coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
-    const [lat, lng] = coordinates
-    console.log(coordinates)
-    // const location = {
-    //     'type': 'Feature',
-    //     'geometry': {
-    //         'type': 'Point',
-    //         'coordinates': [lat, lng]
-    //     }
-    // }
-    // putLocation(location)
-    // emitLocation(location)
-    message.ack()
-}
-
-subscription.on(`message`, messageHandler)
+// subscription.on(`message`, messageHandler)
 
 // Builds clusters from locations and emits them
 function emitClusters([bbox, zoom]) {
