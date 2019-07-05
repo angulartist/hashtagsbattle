@@ -10,12 +10,11 @@ steps:
       - --key=cloudbuild-env
     id: 'decrypt key'
 
-  - name: python:3.7
-    args: ['bash', './tweets/tests/runner.sh']
-    id: 'pytest unit tests'
+  - name: gcr.io/cloud-builders/docker
+    args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/tweeter-listener', './tweets/' ]
+    id: 'build and deploy image to GCR'
 
-  - name: gcr.io/cloud-builders/gcloud
-    args: ['app', 'deploy', './tweets/app.flexible.yaml', '-v', '$_VID']
-    id: 'deploy app engine'
+images:
+  - 'gcr.io/$PROJECT_ID/tweeter-listener'
 
 timeout: 660s

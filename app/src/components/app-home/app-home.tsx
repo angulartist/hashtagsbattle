@@ -44,8 +44,8 @@ export class AppHome {
       style: 'mapbox://styles/mapbox/light-v9?optimize=true',
       center: [-5, 10],
       zoom: 2,
-      minZoom: 2,
-      maxZoom: 8,
+      minZoom: 1,
+      maxZoom: 16,
       hash: true
     })
 
