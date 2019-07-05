@@ -10,7 +10,7 @@ A: Hashtagsbattle is a Web App which displays some analytics, such as hourly tre
 
 A: 
 
-- First of, there's a tweets listener built with [Tweepy](https://tweepy.readthedocs.io) which retrieves tweets sent back by the Twitter's API. It does some basic cleaning and filtering before publishing them to a [Pub/Sub](https://cloud.google.com/pubsub/docs/overview) topic, which is basically a global-scale messaging buffer/bus. The listener is running on a [Google App Engine](https://cloud.google.com/appengine/) instance. 
+- First of, there's a tweets listener built with [Tweepy](https://tweepy.readthedocs.io) which retrieves tweets sent back by the Twitter's API. It does some basic cleaning and filtering before publishing them to a [Pub/Sub](https://cloud.google.com/pubsub/docs/overview) topic, which is basically a global-scale messaging buffer/bus. The listener is running on a [Google Compute Engine](https://cloud.google.com/compute/) instance, as it is somehow cheap and doesnt requires auto-scaling. 
 
 - Then, there's a little [Express](https://expressjs.com/) server using [SocketIO](https://socket.io/). This application is also running on App Engine. There's an endpoint receiving Pub/Sub push messages and emiting events through a web socket. It's using the Supercluster library to do server-side clustering on points and to reduce networkig/client-side rendering delay.
 
@@ -22,13 +22,13 @@ The Web-App is built with [Stencil](https://stenciljs.com/) and it's deployed to
 
 As you can see, this is fully managed by Google Cloud Platform.
 
-![GCPimplementation](https://i.imgur.com/8WWeGfa.png)
+![GCPimplementation](https://i.imgur.com/bLogDAg.png)
 
 # TODO :
 - [X] Use Pub/Sub push method instead of pull (lower latency)
-- [ ] Migrate to BigTable
 - [ ] UI
-- [ ] Doc
+- [ ] Implement the ML layer
+- [ ] A lot of things
 ...
 
 # Installation
