@@ -12,7 +12,7 @@ A:
 
 - First of, there's a tweets listener built with [Tweepy](https://tweepy.readthedocs.io) which retrieves tweets sent back by the Twitter's API. It does some basic cleaning and filtering before publishing them to a [Pub/Sub](https://cloud.google.com/pubsub/docs/overview) topic, which is basically a global-scale messaging buffer/bus. The listener is running on a [Google Compute Engine](https://cloud.google.com/compute/) instance, as it is somehow cheap and doesnt requires auto-scaling. 
 
-- Then, there's a little [Express](https://expressjs.com/) server using [SocketIO](https://socket.io/). This application is also running on App Engine. There's an endpoint receiving Pub/Sub push messages and emiting events through a web socket. It's using the Supercluster library to do server-side clustering on points and to reduce networkig/client-side rendering delay.
+- Then, there's a little [Express](https://expressjs.com/) server using [SocketIO](https://socket.io/). This application is  running on [App Engine](https://cloud.google.com/appengine/). There's an endpoint receiving Pub/Sub push messages and emiting events through a web socket. It's using the Supercluster library to do server-side clustering on points and to reduce networking/client-side rendering delay.
 
 - The heart of my project is the [Apache-Beam](https://beam.apache.org/) streaming processing pipeline running on the [Cloud Dataflow](https://cloud.google.com/dataflow) runner. This pipeline consumes events sent by the source Pub/Sub topic and it does some data transformations (grouping, counting, filtering, batching...) before sending back the pre-aggregated output to another Pub/Sub topic. I'm playing with some windows and some triggers to achieve a quite low-latency.
 
