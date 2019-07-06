@@ -8,13 +8,13 @@ steps:
       - --location=global
       - --keyring=cloudbuild-env
       - --key=cloudbuild-env
-    id: 'decrypt key'
+    id: 'kms: decrypt key'
 
   - name: gcr.io/cloud-builders/docker
     args: [ 'build', '-t', 'gcr.io/$PROJECT_ID/tweeter-listener', './tweets/' ]
     id: 'build and deploy image to GCR'
 
 images:
-  - 'gcr.io/$PROJECT_ID/tweeter-listener'
+  - gcr.io/$PROJECT_ID/tweeter-listener
 
 timeout: 660s
