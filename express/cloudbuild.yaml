@@ -2,21 +2,22 @@ steps:
   - name: gcr.io/cloud-builders/npm
     args: ['install']
     dir: 'server'
-    id: 'install packages'
+    id: 'installing packages'
 
   - name: gcr.io/cloud-builders/npm
     args: ['run', 'test']
     dir: 'server'
-    id: 'unit tests'
+    id: 'running unit tests'
 
   - name: gcr.io/cloud-builders/gcloud
     args: ['app', 'deploy', '--project', '$PROJECT_ID',
            '-q', '$_GAE_PROMOTE',
            './server/app.flexible.yaml', '-v', '$_VID']
-    id: 'deploy app engine'
+    id: 'deploying on app engine'
 
   - name: 'gcr.io/cloud-builders/gcloud'
     args: ['app', 'services', '--project', '$PROJECT_ID',
            'set-traffic', '--splits', '$_GAE_TRAFFIC']
+    id: 'setting traffic accordingly'
 
 timeout: 660s

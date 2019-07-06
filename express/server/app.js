@@ -3,20 +3,20 @@ const app = require('express')()
 const http = require('http').Server(app)
 const io = require('socket.io')(http)
 const NodeCache = require('node-cache')
-const clusterify = require('supercluster')
+const Cluster = require('supercluster')
 
+/* Currently limiting clusters to a hundred thousand points */
 const LOCATION_KEY = 'locations' // stored in memory
 const BATCH_KEY = 'batch' // stored in memory
-const MAX_LOCATIONS = 500000 // max tweets
-const MAX_BATCH_SIZE = 25 // update every X
+const MAX_LOCATIONS = 100000 // max tweets
+const MAX_BATCH_SIZE = 5 // update every X new tweets
 
+/* Init the cache */
 const cache = new NodeCache({
     useClones: false
 })
 
-/**
- * SOCKET IO
- */
+/* SocketIO stuff */
 io.on('connection', socket => {
     io.emit('connected')
 
@@ -24,7 +24,7 @@ io.on('connection', socket => {
         io.emit('disconnect')
     })
 
-    // Has user moved the map?
+    // Has user updated the map coords/zoom?
     socket.on('map updated', (coords) => {
         emitClusters(coords)
     })
@@ -36,11 +36,9 @@ app.get('/', (req, res) => {
     res.sendFile(`${__dirname}/tpl/index.html`)
 })
 
-/**
- * PUB/SUB PUSH ENDPOINT
- */
+/* Endpoint handling Pub/Sub push subscription */
 app.post('/push', (req, res) => {
-    // Checking bad format
+    /* Checking bad format */
     const {body} = req
     if (!body) {
         const msg = 'no Pub/Sub message received'
@@ -55,10 +53,12 @@ app.post('/push', (req, res) => {
         return
     }
 
-    // Retrieve + ACK
+    /* Retrieve tweets */
     const pubSubMessage = req.body.message
     const {coordinates} = JSON.parse(Buffer.from(pubSubMessage.data, 'base64').toString())
+    /* Extract coordinates */
     const [lat, lng] = coordinates
+    /* Build a geojson-compliant feature object */
     const location = {
         'type': 'Feature',
         'geometry': {
@@ -66,76 +66,57 @@ app.post('/push', (req, res) => {
             'coordinates': [lat, lng]
         }
     }
+    /* Caching */
     putLocation(location)
+    /* Red dot thing... */
     emitLocation(location)
+    /* ACK the message to remove the event from the Pub/Sub buffer */
     res.status(204).send()
 })
 
-function emitLocation(location) {
-    io.emit('dot', location)
-}
-
-// # LOCAL TESTING ONLY # //
-
-// const {PubSub} = require(`@google-cloud/pubsub`)
-// const pubsub = new PubSub()
-// const subscriptionName = 'projects/notbanana-7f869/subscriptions/new_tweets'
-// const subscription = pubsub.subscription(subscriptionName)
-//
-// const messageHandler = message => {
-//     const {coordinates} = JSON.parse(Buffer.from(message.data, 'base64').toString())
-//     const [lat, lng] = coordinates
-//     console.log(coordinates)
-//     // const location = {
-//     //     'type': 'Feature',
-//     //     'geometry': {
-//     //         'type': 'Point',
-//     //         'coordinates': [lat, lng]
-//     //     }
-//     // }
-//     // putLocation(location)
-//     // emitLocation(location)
-//     message.ack()
-// }
-
-// subscription.on(`message`, messageHandler)
+/* For the little-red-fancy-dotness you know */
+const emitLocation = (location) => io.emit('dot', location)
 
 // Builds clusters from locations and emits them
-function emitClusters([bbox, zoom]) {
+const emitClusters = ([bbox, zoom]) => {
+    /* We don't care about precision for the sake of this demo */
+    const approxZoom = Math.floor(zoom)
+    /* Retrieve the locations stored in the memory */
     const locations = cache.get(LOCATION_KEY)
-
-    // Compute only the current user zoom
-    const index = new clusterify({
-        radius: 120,
-        maxZoom: Math.floor(zoom),
-        minZoom: Math.floor(zoom),
+    /* Compute clusters only for the current Zoom layer */
+    const index = new Cluster({
+        radius: 70,
+        maxZoom: approxZoom,
+        minZoom: approxZoom,
         log: true
     })
-
+    /* Build the index */
     index.load(locations)
-    const clusters = index.getClusters(bbox, Math.floor(zoom))
-    io.emit('clusters', clusters)
+    /* Emit clusters through web-socket */
+    io.emit('clusters', index.getClusters(bbox, approxZoom))
 }
 
-// Init in-memory cache
-function initCache() {
-    // Cache keys
+/* Init in-memory cache keys and set up event listeners */
+const initCache = () => {
+    // Set cache keys
     cache.set('locations', [])
     cache.set('batch', [])
-    // Cache events
+    // Set cache event listeners
     cache.on('set', (key, batch) => {
+        /* Only dealing with batched writes */
         if (key !== BATCH_KEY) return
-
+        /* As we got MAX_BATCH_SIZE more locations, ask client for it's camera info */
         if (batch.length >= MAX_BATCH_SIZE) {
             io.emit('ask for coords')
         }
     })
-    console.info('Initialized cache!!!')
 }
 
-// Add a new location
-function putLocation(location) {
+/* Save a new location to the memory */
+const putLocation = (location) => {
+    /* Retrieve current batch */
     const batch = cache.get(BATCH_KEY)
+    /* If the batch size is has reached the limit, store locations... */
     if (batch.length >= MAX_BATCH_SIZE) {
         let locations = cache.get(LOCATION_KEY)
         if (locations.length >= MAX_LOCATIONS) {
@@ -143,16 +124,13 @@ function putLocation(location) {
         }
         cache.set(BATCH_KEY, [])
         cache.set(LOCATION_KEY, [...batch, ...locations])
+        /* ... otherwise fill up the batch */
     } else {
         cache.set(BATCH_KEY, [location, ...batch])
     }
 }
 
-// Helper
-function printKiloBytes(tag, str) {
-    console.log(tag, Buffer.byteLength(str, 'utf8') / 1024, str.length)
-}
-
+/* That's ugly but whatever ¯\_(ツ)_/¯ *dab* */
 initCache()
 
 module.exports = http
