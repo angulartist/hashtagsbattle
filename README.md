@@ -22,7 +22,7 @@ The Web-App is built with [Stencil](https://stenciljs.com/) and it's deployed to
 
 As you can see, this is fully managed by Google Cloud Platform.
 
-![GCPimplementation](https://i.imgur.com/bLogDAg.png)
+![GCPimplementation](https://i.imgur.com/2EVypcG.png)
 
 # TODO :
 - [X] Use Pub/Sub push method instead of pull (lower latency)
