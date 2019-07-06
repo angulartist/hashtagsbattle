@@ -1,4 +1,4 @@
-# Node: Express + SocketIO service running on GAE
+# NodeJS: Express/SocketIO micro-service running on GAE
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ $ cd express/server/
 
 ## Cleaning
 
-- The **openapi-appengine.yaml** file is only required to secure some of your endpoints. This is optional and can be removed.
+- The **openapi-appengine.yaml** file describes the behiavour of [Cloud Endpoints](https://cloud.google.com/endpoints/), a proxy for your micro-services, to secure some of your endpoints. As the configuration requires additional steps for this, you can skip it and remove it for this demo.
 
 
 ## Run the project
@@ -101,20 +101,26 @@ Read more about [Cloud Build flags](https://cloud.google.com/appengine/docs/flex
 
 ### Automating builds using build triggers (multiple environments)
 
-Here is an example of how to setup auto builds with Cloud Build triggers. I'm using github as a repository source and I've added two triggers : one to deploy features pushed on a **staging** branch and another one to deploy features merged into **master**.
+![CICD pipeline](https://i.imgur.com/iTmjgkp.png)
 
-* When you commit something on staging, this gonna run the CI/CD pipeline and deploy a staging version of your service where the traffic is only 20% (for testing purposes).
-* And when you merge features from staging to master, this gonna run the pipeline and deploy a prod version of your service with 100% of the traffic.
+Here is an example of how to setup auto builds with Cloud Build triggers. I'm using GitHub as a repository source and I've added two triggers : One to deploy features pushed on a **staging** branch and anotha' one to deploy features merged into **master**.
 
-#### Create a new PROD trigger and specify the **Cloud build** configuration
-
-* [PROD trigger configuration p1](https://i.imgur.com/t0giFvP.png)
-* [PROD trigger configuration p2](https://i.imgur.com/Zkg9niX.png)
+* When you commit something on staging, this gonna run the CI/CD pipeline and deploys a staging version of your service where the traffic is only 20% (for testing purposes).
+* And when you merge features from staging to master, this gonna run the pipeline and deploys a prod version of your service, and ensure that it's receiving all traffic.
 
 #### Create a new PROD trigger and specify the **Cloud build** configuration
 
-* [STAGING trigger configuration p1](https://i.imgur.com/yak6Osw.png)
-* [STAGING trigger configuration p2](https://i.imgur.com/CLuEBxE.png)
+* https://i.imgur.com/t0giFvP.png
+* https://i.imgur.com/Zkg9niX.png
+
+#### Create a new STAGING trigger and specify the **Cloud build** configuration
+
+* https://i.imgur.com/yak6Osw.png
+* https://i.imgur.com/CLuEBxE.png
 
 
-#### Push some modifications, it's automagic! :fire:
+There you go!
+
+<p align="center">
+  <img width="500" src="https://i.kym-cdn.com/photos/images/newsfeed/001/282/726/110.png">
+</p>
