@@ -119,4 +119,6 @@ Here is an example of how to setup auto builds with Cloud Build triggers. I'm us
 * https://i.imgur.com/CLuEBxE.png
 
 
-#### Push some modifications, it's automagic! :fire:
+There you go!
+
+![](https://i.kym-cdn.com/photos/images/newsfeed/001/282/726/110.png)
