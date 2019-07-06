@@ -29,7 +29,7 @@ $ cd express/server/
 
 ## Cleaning
 
-- The **openapi-appengine.yaml** file is only required to secure some of your endpoints. This is optional and can be removed.
+- The **openapi-appengine.yaml** file describes the behiavour of [Cloud Endpoints](https://cloud.google.com/endpoints/), a proxy for your micro-services, to secure some of your endpoints. As the configuration requires additional steps for this, you can skip it and remove it for this demo.
 
 
 ## Run the project
