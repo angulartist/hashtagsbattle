@@ -106,10 +106,12 @@ def reformat_tweet(tweet):
 
 class StdOutListener(StreamListener):
     """ The main listener """
+
     def __init__(self):
         super(StdOutListener, self).__init__()
 
-    def on_status(self, dataset):
+    @classmethod
+    def on_status(cls, dataset):
         # Working with dictionary
         tweet = dataset._json
         # Only dealing with geo-located tweets
@@ -119,11 +121,13 @@ class StdOutListener(StreamListener):
 
         return True
 
-    def on_timeout(self):
+    @classmethod
+    def on_timeout(cls):
         print('AYYY! Timeout.')
         return True
 
-    def on_error(self, status):
+    @classmethod
+    def on_error(cls, status):
         if status == 420:
             print('AYYY! Rate limit active.', status)
         return True
