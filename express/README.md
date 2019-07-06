@@ -1,4 +1,4 @@
-# Node: Express + SocketIO service running on GAE
+# NodeJS: Express/SocketIO micro-service running on GAE
 
 ## Table of Contents
 
@@ -110,13 +110,13 @@ Here is an example of how to setup auto builds with Cloud Build triggers. I'm us
 
 #### Create a new PROD trigger and specify the **Cloud build** configuration
 
-* [PROD trigger configuration p1](https://i.imgur.com/t0giFvP.png)
-* [PROD trigger configuration p2](https://i.imgur.com/Zkg9niX.png)
+* https://i.imgur.com/t0giFvP.png
+* https://i.imgur.com/Zkg9niX.png
 
-#### Create a new PROD trigger and specify the **Cloud build** configuration
+#### Create a new STAGING trigger and specify the **Cloud build** configuration
 
-* [STAGING trigger configuration p1](https://i.imgur.com/yak6Osw.png)
-* [STAGING trigger configuration p2](https://i.imgur.com/CLuEBxE.png)
+* https://i.imgur.com/yak6Osw.png
+* https://i.imgur.com/CLuEBxE.png
 
 
 #### Push some modifications, it's automagic! :fire:
