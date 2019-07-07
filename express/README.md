@@ -10,7 +10,7 @@
   * [Run locally (Docker)](#run-locally-docker)
 * [Deploy the project](#deploy-the-project)
   * [Deploy on Google App Engine (manually)](#deploy-on-google-app-engine-manually)
-  * [Automating builds using build triggers (multiple environments)](#automating-builds-using-build-triggers-multiple-environments)
+  * [CI/CD Automating builds using build triggers (multiple environments)](#automating-builds-using-build-triggers-multiple-environments)
   
 ## About the project
 
