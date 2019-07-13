@@ -1,5 +1,7 @@
 # NodeJS: Express/SocketIO micro-service running on GAE
 
+# [Lire le recap Google Cloud Summit 2019](https://docs.google.com/document/d/13rVZoDY73J-LNrUMlyfYV1IkQBUbZlId32sV-oKwhr4/edit?usp=sharing)
+
 ## Table of Contents
 
 * [About the project](#about-the-project)
